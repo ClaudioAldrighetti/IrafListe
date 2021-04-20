@@ -1,13 +1,10 @@
 import tkinter as tk
 from tkinter import filedialog as fd
 import os
-from sys import platform
 
 import makefiles as mf
 from utility import *
-
-COL_ERR = "Red"
-COL_NORM = "White"
+from winconfig import *
 
 
 # Main window class
@@ -170,12 +167,8 @@ class MainWindow(tk.Tk):
         self.starFrame.standardEntries.append(new_standard_entry)
 
         # Resize star list window
-        if platform == "linux":
-            entry_height = 29
-        else:
-            entry_height = 25
         base_height = self.starFrame.geometryBase.height
-        new_height = base_height + entry_height * list_dim
+        new_height = base_height + ENTRY_HEIGHT * list_dim
         base_width = self.starFrame.geometryBase.width
         self.starFrame.geometry(str(base_width) + "x" + str(new_height))
 
@@ -469,11 +462,8 @@ class SynthesisWindow(tk.Toplevel):
         self.minsize(300, 100)
         self.maxsize(600, 350)
 
-        # self.yScroll = tk.Scrollbar(self)
-        # self.yScroll.pack(side="right", fill="y")
-
         # Synthesis
-        self.synText = tk.Text(self, state="normal")    # , yscrollcommand=self.yScroll.set)
+        self.synText = tk.Text(self, state="normal")
         self.synText.pack(expand=True)
 
         syn_string = ""
@@ -569,12 +559,8 @@ class MasterWindow(tk.Toplevel):
         self.timeEntries.append(new_time_entry)
 
         # Resize the Master Window
-        if platform == "linux":
-            entry_height = 29
-        else:
-            entry_height = 25
         base_height = self.geometryBase.height
-        new_height = base_height + entry_height * (self.listDim-1)
+        new_height = base_height + ENTRY_HEIGHT * (self.listDim-1)
         base_width = self.geometryBase.width
         self.geometry(str(base_width) + "x" + str(new_height))
 
