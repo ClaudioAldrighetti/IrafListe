@@ -28,7 +28,7 @@ class MainWindow(tk.Tk):
 
         # Workspace settings
         self.wsButton = tk.Button(self.settingFrame, text="Choose WS dir", command=self.select_ws_path)
-        self.wsButton.grid(row=0, column=0, padx=5, pady=3, sticky="WE")
+        self.wsButton.grid(row=0, column=0, padx=3, pady=3, sticky="WE")
         self.wsPath = ""
 
         self.wsLabel = tk.Label(self.settingFrame, text="Workspace:")
@@ -39,7 +39,7 @@ class MainWindow(tk.Tk):
 
         # Add star interface
         self.starButton = tk.Button(self.settingFrame, text="Add star", command=self.add_star, state="disabled")
-        self.starButton.grid(row=1, column=0, padx=5, pady=3, sticky="WE")
+        self.starButton.grid(row=1, column=0, padx=3, pady=3, sticky="WE")
 
         self.starLabel = tk.Label(self.settingFrame, text="New star:", state="disabled")
         self.starLabel.grid(row=1, column=1, padx=0, pady=3, sticky="E")
@@ -54,7 +54,7 @@ class MainWindow(tk.Tk):
 
         # Reference star interface
         self.refButton = tk.Button(self.settingFrame, text="Choose reference", command=self.add_ref, state="disabled")
-        self.refButton.grid(row=2, column=0, padx=5, pady=3, sticky="WE")
+        self.refButton.grid(row=2, column=0, padx=3, pady=3, sticky="WE")
 
         self.refLabel = tk.Label(self.settingFrame, text="New REF:", state="disabled")
         self.refLabel.grid(row=2, column=1, padx=0, pady=3, sticky="E")
@@ -83,9 +83,21 @@ class MainWindow(tk.Tk):
 
         self.masterWindow = None
 
+        # Bottom frame
+        self.bottomFrame = tk.Frame(self)
+        self.bottomFrame.pack(side="bottom", fill="x")
+        self.restartFrame = tk.Frame(self.bottomFrame)
+        self.restartFrame.pack(side="left", expand=True, fill="x")
+        self.closeFrame = tk.Frame(self.bottomFrame)
+        self.closeFrame.pack(side="right", expand=True, fill="x")
+
+        # Restart button
+        self.restartButton = tk.Button(self.restartFrame, text="Restart", command=self.restart)
+        self.restartButton.pack(expand=True, fill="x", padx=3, pady=3)
+
         # Close button
-        self.closeButton = tk.Button(self, text="Close", command=self.destroy)
-        self.closeButton.pack(side="bottom", padx=3, pady=3, fill="x")
+        self.closeButton = tk.Button(self.closeFrame, text="Close", command=self.destroy)
+        self.closeButton.pack(expand=True, fill="x", padx=3, pady=3)
 
     # Workspace selection
     def select_ws_path(self):
@@ -229,6 +241,49 @@ class MainWindow(tk.Tk):
 
         print("Opening Synthesis window...")
         self.synWindow = SynthesisWindow(self)
+        return
+
+    def restart(self):
+        print("RESTART")
+
+        if not (self.starFrame is None):
+            self.starFrame.destroy()
+            self.starFrame = None
+
+        if not (self.masterWindow is None):
+            self.masterWindow.destroy()
+            self.masterWindow = None
+
+        if not (self.synWindow is None):
+            self.synWindow.destroy()
+            self.synWindow = None
+
+        self.wsPath = ""
+        self.starList = []
+        self.listDim = 0
+        self.refName = None
+        self.refPose = None
+
+        self.wsButton.configure(state="normal")
+        self.wsLabel.configure(state="normal")
+        self.wsEntry.configure(state="normal")
+        self.wsEntry.delete(0, "end")
+        self.wsEntry.configure(state="readonly")
+
+        self.starButton.configure(state="disabled")
+        self.starLabel.configure(state="disabled")
+        self.starEntry.configure(state="disabled")
+
+        self.refButton.configure(state="disabled")
+        self.refLabel.configure(state="disabled")
+        self.refEntry.configure(state="disabled")
+        self.curRefLabel.configure(state="disabled")
+        self.curRefEntry.configure(state="disabled")
+
+        self.synButton.configure(state="disabled")
+
+        self.masterButton.configure(state="disabled")
+
         return
 
 
@@ -460,11 +515,12 @@ class SynthesisWindow(tk.Toplevel):
         self.geometryBase = WinGeometry(600, 150, 110, 260)
         self.geometry(str(self.geometryBase))
         self.minsize(300, 100)
-        self.maxsize(600, 350)
 
         # Synthesis
-        self.synText = tk.Text(self, state="normal")
-        self.synText.pack(expand=True)
+        self.synFrame = tk.Frame(self)
+        self.synFrame.pack(expand=True, fill="both")
+        self.synText = tk.Text(self.synFrame, state="normal")
+        self.synText.pack(expand=True, fill="both")
 
         syn_string = ""
         for i in range(0, self.master.listDim):
