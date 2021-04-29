@@ -129,7 +129,7 @@ def make_Pulizia1(ws_path):
     new_file.close()
     return
 
-def make_GeneraMasterFlat(ws_path, star_list, list_dim, min_h_pixel, max_h_pixel, h_image):
+def make_GeneraMasterFlat(ws_path, star_list, list_dim, min_h_pixel, max_h_pixel, h_image, l_row):
     print("Creating genera_master_flat.txt file...")
     file_path = opt.join(ws_path, "genera_master_flat.txt")
     with open(file_path, "w") as new_file:
@@ -142,7 +142,7 @@ def make_GeneraMasterFlat(ws_path, star_list, list_dim, min_h_pixel, max_h_pixel
                 "medflat_" + star_info.name + ".fit combine=average reject=none\n"
                 "blkavg medflat_" + star_info.name + ".fit"
                 "[*," + str(min_h_pixel) + ":" + str(max_h_pixel) + "] "
-                "avcol_in_" + star_info.name + ".fit 1 613\n"
+                "avcol_in_" + star_info.name + ".fit 1 " + str(l_row) +"\n"
                 "blkrep avcol_in_" + star_info.name + ".fit "
                 "avcol_out_" + star_info.name + ".fit 1 " + str(h_image) + "\n"
                 "imarith medflat_" + star_info.name + ".fit / "
@@ -422,13 +422,14 @@ def make_PreparoHelio(ws_path, star_list, list_dim):
         file_name = star_info.name + "_preparo_helio.txt"
         file_path = opt.join(ws_path, file_name)
         with open(file_path, "w") as new_file:
-
-            for i_pose in range(1, star_info.pose + 1):
-                new_file.write(
-                    "hedit @" + star_info.name + "_rv_corrected.txt "
-                    "field=observat value=ekar add+ update+\n"
-                    "setjd @" + star_info.name + "_rv_corrected.txt\n"
-                    "setairmass @" + star_info.name + "_rv_corrected.txt\n")
+            new_file.write(
+                "hedit @" + star_info.name + "_rv_corrected.txt "
+                "field=observat value=OMB add+ update+\n"
+                "setjd @" + star_info.name + "_rv_corrected.txt\n"
+                "setairmass @" + star_info.name + "_rv_corrected.txt\n"
+                "hedit @" + star_info.name + "_rv_corrected.txt\n"
+                "fields=DATE-OBS value=. > lista_date.txt\n"
+                "!more lista_date.txt\n")
 
         new_file.close()
     return
@@ -486,6 +487,26 @@ def make_Pulizia4(ws_path):
             "cd ..\n"
             "mkdir 07_liste\n"
             "mv *.txt 07_liste\n")
+    new_file.close()
+    return
+
+def make_ListaInizio(ws_path, dark_flag):
+    print("Creating lista_inizio.txt file...")
+    file_path = opt.join(ws_path, "lista_inizio.txt")
+    with open(file_path, "w") as new_file:
+        new_file.write(
+            "cl < pulizia0.txt\n")
+        if(dark_flag):
+            new_file.write(
+                "cl < crea_master_db.txt\n")
+        new_file.write(
+            "imarith @lista_generale.txt - master_bias.fit @lista_biassati.txt calctyp=real pixtype=real\n"
+            "cl < crea_darkati.txt\n"
+            "cl < pulizia1.txt\n"
+            "cl < genera_master_flat.txt\n"
+            "cl < lista_flattati.txt\n"
+            "cl < pulizia2.txt\n"
+            "cl < genera_master_neon.txt\n")
     new_file.close()
     return
 

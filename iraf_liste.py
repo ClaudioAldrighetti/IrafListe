@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import filedialog as fd
+import tkinter.ttk as ttk
 import os
 
 import makefiles as mf
@@ -15,10 +16,10 @@ class MainWindow(tk.Tk):
 
         if platform == "linux":
             # Linux distribution configuration
-            self.geometryBase = WinGeometry(385, 350, 100, 100)
+            self.geometryBase = WinGeometry(300, 350, 100, 100)
         else:
             # Windows or other
-            self.geometryBase = WinGeometry(285, 350, 100, 100)
+            self.geometryBase = WinGeometry(290, 350, 100, 100)
         self.geometry(str(self.geometryBase))
         self.resizable(False, False)
 
@@ -35,7 +36,7 @@ class MainWindow(tk.Tk):
         self.wsLabel.grid(row=0, column=1, padx=0, pady=3, sticky="E")
 
         self.wsEntry = tk.Entry(self.settingFrame, width=15, state="readonly")
-        self.wsEntry.grid(row=0, column=2, padx=0, pady=3, sticky="WE")
+        self.wsEntry.grid(row=0, column=2, padx=0, pady=3, sticky="W")
 
         # Add star interface
         self.starButton = tk.Button(self.settingFrame, text="Add star", command=self.add_star, state="disabled")
@@ -45,12 +46,12 @@ class MainWindow(tk.Tk):
         self.starLabel.grid(row=1, column=1, padx=0, pady=3, sticky="E")
 
         self.starEntry = tk.Entry(self.settingFrame, width=15, state="disabled")
-        self.starEntry.grid(row=1, column=2, padx=0, pady=3, sticky="WE")
+        self.starEntry.grid(row=1, column=2, padx=0, pady=3, sticky="W")
 
         # Star list
         self.starList = []
         self.listDim = 0
-        self.starFrame = None
+        self.starListWindow = None
 
         # Reference star interface
         self.refButton = tk.Button(self.settingFrame, text="Choose reference", command=self.add_ref, state="disabled")
@@ -60,16 +61,25 @@ class MainWindow(tk.Tk):
         self.refLabel.grid(row=2, column=1, padx=0, pady=3, sticky="E")
 
         self.refEntry = tk.Entry(self.settingFrame, width=15, state="disabled")
-        self.refEntry.grid(row=2, column=2, padx=0, pady=3, sticky="WE")
+        self.refEntry.grid(row=2, column=2, padx=0, pady=3, sticky="W")
 
         self.curRefLabel = tk.Label(self.settingFrame, text="Selected REF:", state="disabled")
         self.curRefLabel.grid(row=3, column=1, padx=0, pady=3, sticky="E")
 
         self.curRefEntry = tk.Entry(self.settingFrame, width=15, state="disabled")
-        self.curRefEntry.grid(row=3, column=2, padx=0, pady=3, sticky="WE")
+        self.curRefEntry.grid(row=3, column=2, padx=0, pady=3, sticky="W")
 
         self.refName = None
         self.refPose = None
+
+        # Spectrograph selection interface
+        self.specLabel = tk.Label(self.settingFrame, text="Spectrograph:", state="disabled")
+        self.specLabel.grid(row=4, column=1, padx=0, pady=3, sticky="E")
+        self.specVal = tk.StringVar(self)
+        spec_list = (specInfo.name for specInfo in SPEC_INFO)
+        self.specOptions = ttk.OptionMenu(self.settingFrame, self.specVal, SPEC_INFO[0].name, *spec_list)
+        self.specOptions.configure(state="disabled", width=10)
+        self.specOptions.grid(row=4, column=2, padx=0, pady=3, sticky="WE")
 
         # Synthesis Button
         self.synButton = tk.Button(self, text="Generate Synthesis", command=self.gen_syn, state="disabled")
@@ -82,6 +92,7 @@ class MainWindow(tk.Tk):
         self.masterButton.pack(padx=3, pady=3, fill="x")
 
         self.masterWindow = None
+        self.masterFlag = False
 
         # Bottom frame
         self.bottomFrame = tk.Frame(self)
@@ -111,13 +122,15 @@ class MainWindow(tk.Tk):
         print("WS: " + self.wsPath)
         print("Workspace set successfully")
 
-        self.wsEntry.configure(state="normal", bg=COL_NORM)
+        self.wsEntry.configure(state="normal")
         self.wsEntry.insert(0, self.wsPath)
         self.wsEntry.configure(state="readonly")
 
         self.starEntry.configure(state="normal")
         self.starLabel.configure(state="normal")
         self.starButton.configure(state="normal")
+        self.specLabel.configure(state="normal")
+        self.specOptions.configure(state="normal")
         self.masterButton.configure(state="normal")
         return
 
@@ -141,48 +154,48 @@ class MainWindow(tk.Tk):
         if list_dim == 1:
             # Open star list window
             print("Opening star list window...")
-            self.starFrame = StarListWindow()
+            self.starListWindow = StarListWindow()
             self.refButton.configure(state="normal")
             self.refLabel.configure(state="normal")
             self.refEntry.configure(state="normal")
 
         print("Adding a new line in the star list window...")
         # New entry on the star list window
-        new_star_entry = tk.Entry(self.starFrame.listFrame, width=20)
+        new_star_entry = tk.Entry(self.starListWindow.listFrame, width=20)
         new_star_entry.grid(row=list_dim, column=0, padx=2, pady=3, sticky="WE")
         new_star_entry.insert(0, star_name)
         new_star_entry.configure(state="readonly")
-        self.starFrame.starEntries.append(new_star_entry)
+        self.starListWindow.starEntries.append(new_star_entry)
 
-        new_pose_entry = tk.Entry(self.starFrame.listFrame, width=6)
+        new_pose_entry = tk.Entry(self.starListWindow.listFrame, width=6)
         new_pose_entry.grid(row=list_dim, column=1, padx=1, pady=3, sticky="WE")
-        self.starFrame.poseEntries.append(new_pose_entry)
+        self.starListWindow.poseEntries.append(new_pose_entry)
 
-        new_flat_entry = tk.Entry(self.starFrame.listFrame, width=6)
+        new_flat_entry = tk.Entry(self.starListWindow.listFrame, width=6)
         new_flat_entry.grid(row=list_dim, column=2, padx=1, pady=3, sticky="WE")
         new_flat_entry.insert(0, 5)
-        self.starFrame.flatEntries.append(new_flat_entry)
+        self.starListWindow.flatEntries.append(new_flat_entry)
 
-        new_neon_entry = tk.Entry(self.starFrame.listFrame, width=6)
+        new_neon_entry = tk.Entry(self.starListWindow.listFrame, width=6)
         new_neon_entry.grid(row=list_dim, column=3, padx=1, pady=3, sticky="WE")
         new_neon_entry.insert(0, 3)
-        self.starFrame.neonEntries.append(new_neon_entry)
+        self.starListWindow.neonEntries.append(new_neon_entry)
 
-        new_dark_entry = tk.Entry(self.starFrame.listFrame, width=6)
+        new_dark_entry = tk.Entry(self.starListWindow.listFrame, width=6)
         new_dark_entry.grid(row=list_dim, column=4, padx=1, pady=3, sticky="WE")
-        self.starFrame.darkEntries.append(new_dark_entry)
+        self.starListWindow.darkEntries.append(new_dark_entry)
 
-        new_standard_entry = tk.Entry(self.starFrame.listFrame, width=10)
+        new_standard_entry = tk.Entry(self.starListWindow.listFrame, width=10)
         new_standard_entry.grid(row=list_dim, column=5, padx=1, pady=3, sticky="WE")
         if is_standard(star_name):
             new_standard_entry.configure(state="disabled")
-        self.starFrame.standardEntries.append(new_standard_entry)
+        self.starListWindow.standardEntries.append(new_standard_entry)
 
         # Resize star list window
-        base_height = self.starFrame.geometryBase.height
+        base_height = self.starListWindow.geometryBase.height
         new_height = base_height + ENTRY_HEIGHT * list_dim
-        base_width = self.starFrame.geometryBase.width
-        self.starFrame.geometry(str(base_width) + "x" + str(new_height))
+        base_width = self.starListWindow.geometryBase.width
+        self.starListWindow.geometry(str(base_width) + "x" + str(new_height))
 
         print("New star added successfully")
         return
@@ -201,7 +214,7 @@ class MainWindow(tk.Tk):
             return
 
         for i in range(0, self.listDim):
-            if ref_name == self.starFrame.starEntries[i].get():
+            if ref_name == self.starListWindow.starEntries[i].get():
                 print("Setting the reference star...")
                 # Set reference star
                 self.refName = ref_name
@@ -214,13 +227,13 @@ class MainWindow(tk.Tk):
                 self.curRefEntry.insert(0, ref_name)
                 self.curRefEntry.configure(state="readonly")
 
-                self.starFrame.refLabel.configure(state="normal")
-                self.starFrame.refEntry.configure(state="normal")
-                self.starFrame.refEntry.delete(0, "end")
-                self.starFrame.refEntry.insert(0, ref_name)
-                self.starFrame.refEntry.configure(state="readonly")
-                self.starFrame.refPoseLabel.configure(state="normal")
-                self.starFrame.refPoseEntry.configure(state="normal")
+                self.starListWindow.refLabel.configure(state="normal")
+                self.starListWindow.refEntry.configure(state="normal")
+                self.starListWindow.refEntry.delete(0, "end")
+                self.starListWindow.refEntry.insert(0, ref_name)
+                self.starListWindow.refEntry.configure(state="readonly")
+                self.starListWindow.refPoseLabel.configure(state="normal")
+                self.starListWindow.refPoseEntry.configure(state="normal")
 
                 print("Reference star set successfully")
                 return
@@ -234,6 +247,7 @@ class MainWindow(tk.Tk):
 
         print("Opening Master window...")
         self.masterWindow = MasterWindow(self)
+        self.masterFlag = True
         return
 
     def gen_syn(self):
@@ -246,9 +260,9 @@ class MainWindow(tk.Tk):
     def restart(self):
         print("RESTART")
 
-        if not (self.starFrame is None):
-            self.starFrame.destroy()
-            self.starFrame = None
+        if not (self.starListWindow is None):
+            self.starListWindow.destroy()
+            self.starListWindow = None
 
         if not (self.masterWindow is None):
             self.masterWindow.destroy()
@@ -263,6 +277,7 @@ class MainWindow(tk.Tk):
         self.listDim = 0
         self.refName = None
         self.refPose = None
+        self.masterFlag = False
 
         self.wsButton.configure(state="normal")
         self.wsLabel.configure(state="normal")
@@ -278,7 +293,12 @@ class MainWindow(tk.Tk):
         self.refLabel.configure(state="disabled")
         self.refEntry.configure(state="disabled")
         self.curRefLabel.configure(state="disabled")
+        self.curRefEntry.configure(state="normal")
+        self.curRefEntry.delete(0, "end")
         self.curRefEntry.configure(state="disabled")
+
+        self.specLabel.configure(state="disabled")
+        self.specOptions.configure(state="disabled")
 
         self.synButton.configure(state="disabled")
 
@@ -348,6 +368,7 @@ class StarListWindow(tk.Toplevel):
         print("START SESSION")
 
         ref_pose_str = rm_spaces(self.refPoseEntry.get())
+        master_flag = self.master.masterFlag
         self.master.starList = []
 
         print("Checking environment...")
@@ -448,6 +469,18 @@ class StarListWindow(tk.Toplevel):
             star_info = StarInfo(star_entry, star_pose, star_flat, star_neon, star_dark, standard_entry, std_pose)
             self.master.starList.append(star_info)
 
+        # Retrieve spectrograph data
+        spec_name = self.master.specVal.get()
+        spec_info = None
+        for specInfo in SPEC_INFO:
+            if specInfo.name == spec_name:
+                spec_info = specInfo
+                break
+        if spec_info is None:
+            # Quite impossible error, it's just for the sake of security...
+            print("Error: invalid spectrograph!")
+            self._errFlag = True
+
         if self._errFlag:
             self._errFlag = False
             return
@@ -461,7 +494,8 @@ class StarListWindow(tk.Toplevel):
         mf.make_ListaBiassati(ws_path, star_list, list_dim)
         mf.make_FLAT(ws_path, star_list, list_dim)
         mf.make_Pulizia1(ws_path)
-        mf.make_GeneraMasterFlat(ws_path, star_list, list_dim, 10, 280, 281)    # TODO
+        mf.make_GeneraMasterFlat(ws_path, star_list, list_dim,
+                                 spec_info.min_h_pixel, spec_info.max_h_pixel, spec_info.h_image, spec_info.l_row)
         mf.make_ListaFlattati(ws_path, star_list, list_dim)
         mf.make_ListaTracciamoStelle(ws_path, star_list, list_dim)
         mf.make_Pulizia2(ws_path)
@@ -480,6 +514,7 @@ class StarListWindow(tk.Toplevel):
         mf.make_Mediana(ws_path, star_list, list_dim)
         mf.make_Pulizia3(ws_path, star_list, list_dim)
         mf.make_Pulizia4(ws_path)
+        mf.make_ListaInizio(ws_path, master_flag)
 
         print("All initial files have been created successfully")
 
@@ -616,7 +651,7 @@ class MasterWindow(tk.Toplevel):
 
         # Resize the Master Window
         base_height = self.geometryBase.height
-        new_height = base_height + ENTRY_HEIGHT * (self.listDim-1)
+        new_height = base_height + ENTRY_HEIGHT * (self.listDim - 1)
         base_width = self.geometryBase.width
         self.geometry(str(base_width) + "x" + str(new_height))
 

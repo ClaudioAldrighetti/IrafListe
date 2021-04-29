@@ -19,6 +19,15 @@ class WinGeometry:
         return str(self.width) + "x" + str(self.height) + "+" + str(self.xpos) + "+" + str(self.ypos)
 
 
+class SpecInfo:
+    def __init__(self, name, min_h_pixel, max_h_pixel, h_image, l_row):
+        self.name = name
+        self.min_h_pixel = min_h_pixel
+        self.max_h_pixel = max_h_pixel
+        self.h_image = h_image
+        self.l_row = l_row
+
+
 class DarkInfo:
     def __init__(self, pose, dark_time):
         self.pose = pose
