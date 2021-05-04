@@ -1,9 +1,10 @@
-import tkinter as tk
+# import tkinter as tk
 from tkinter import filedialog as fd
-import tkinter.ttk as ttk
+# import tkinter.ttk as ttk
 import os
 
 import makefiles as mf
+import maketk as mtk
 from utility import *
 from winconfig import *
 
@@ -16,37 +17,30 @@ class MainWindow(tk.Tk):
 
         if platform == "linux":
             # Linux distribution configuration
-            self.geometryBase = WinGeometry(300, 350, 100, 100)
+            self.geometryBase = WinGeometry(390, 350, 100, 100)
         else:
             # Windows or other
-            self.geometryBase = WinGeometry(290, 350, 100, 100)
+            self.geometryBase = WinGeometry(300, 350, 100, 100)
         self.geometry(str(self.geometryBase))
         self.resizable(False, False)
+        self.configure(bg=FR_BG)
 
         # Settings frame
-        self.settingFrame = tk.Frame(self)
+        self.settingFrame = tk.Frame(self, bg=FR_BG)
         self.settingFrame.pack()
 
         # Workspace settings
-        self.wsButton = tk.Button(self.settingFrame, text="Choose WS dir", command=self.select_ws_path)
-        self.wsButton.grid(row=0, column=0, padx=3, pady=3, sticky="WE")
+        self.wsButton = mtk.make_Button(self.settingFrame, self.select_ws_path, text="Choose WS dir")
+        self.wsLabel = mtk.make_Label(self.settingFrame, text="Workspace:", column=1)
+        self.wsEntry = mtk.make_Entry(self.settingFrame, column=2, state="readonly")
+
         self.wsPath = ""
 
-        self.wsLabel = tk.Label(self.settingFrame, text="Workspace:")
-        self.wsLabel.grid(row=0, column=1, padx=0, pady=3, sticky="E")
-
-        self.wsEntry = tk.Entry(self.settingFrame, width=15, state="readonly")
-        self.wsEntry.grid(row=0, column=2, padx=0, pady=3, sticky="W")
-
         # Add star interface
-        self.starButton = tk.Button(self.settingFrame, text="Add star", command=self.add_star, state="disabled")
-        self.starButton.grid(row=1, column=0, padx=3, pady=3, sticky="WE")
-
-        self.starLabel = tk.Label(self.settingFrame, text="New star:", state="disabled")
-        self.starLabel.grid(row=1, column=1, padx=0, pady=3, sticky="E")
-
-        self.starEntry = tk.Entry(self.settingFrame, width=15, state="disabled")
-        self.starEntry.grid(row=1, column=2, padx=0, pady=3, sticky="W")
+        self.starButton = mtk.make_Button(self.settingFrame, self.add_star,
+                                          text="Add star", row=1, state=tk.DISABLED)
+        self.starLabel = mtk.make_Label(self.settingFrame, text="New star:", row=1, column=1, state=tk.DISABLED)
+        self.starEntry = mtk.make_Entry(self.settingFrame, row=1, column=2, state=tk.DISABLED)
 
         # Star list
         self.starList = []
@@ -54,61 +48,51 @@ class MainWindow(tk.Tk):
         self.starListWindow = None
 
         # Reference star interface
-        self.refButton = tk.Button(self.settingFrame, text="Choose reference", command=self.add_ref, state="disabled")
-        self.refButton.grid(row=2, column=0, padx=3, pady=3, sticky="WE")
+        self.refButton = mtk.make_Button(self.settingFrame, self.select_ref,
+                                         text="Choose reference", row=2, state=tk.DISABLED)
+        self.refLabel = mtk.make_Label(self.settingFrame, text="New REF:", row=2, column=1, state=tk.DISABLED)
+        self.refEntry = mtk.make_Entry(self.settingFrame, row=2, column=2, state=tk.DISABLED)
 
-        self.refLabel = tk.Label(self.settingFrame, text="New REF:", state="disabled")
-        self.refLabel.grid(row=2, column=1, padx=0, pady=3, sticky="E")
-
-        self.refEntry = tk.Entry(self.settingFrame, width=15, state="disabled")
-        self.refEntry.grid(row=2, column=2, padx=0, pady=3, sticky="W")
-
-        self.curRefLabel = tk.Label(self.settingFrame, text="Selected REF:", state="disabled")
-        self.curRefLabel.grid(row=3, column=1, padx=0, pady=3, sticky="E")
-
-        self.curRefEntry = tk.Entry(self.settingFrame, width=15, state="disabled")
-        self.curRefEntry.grid(row=3, column=2, padx=0, pady=3, sticky="W")
+        self.curRefLabel = mtk.make_Label(self.settingFrame, text="Selected REF:", row=3, column=1, state=tk.DISABLED)
+        self.curRefEntry = mtk.make_Entry(self.settingFrame, row=3, column=2, state=tk.DISABLED)
 
         self.refName = None
         self.refPose = None
 
         # Spectrograph selection interface
-        self.specLabel = tk.Label(self.settingFrame, text="Spectrograph:", state="disabled")
-        self.specLabel.grid(row=4, column=1, padx=0, pady=3, sticky="E")
+        self.specLabel = mtk.make_Label(self.settingFrame, text="Spectrograph:", row=4, column=1, state=tk.DISABLED)
+
         self.specVal = tk.StringVar(self)
         spec_list = (specInfo.name for specInfo in SPEC_INFO)
-        self.specOptions = ttk.OptionMenu(self.settingFrame, self.specVal, SPEC_INFO[0].name, *spec_list)
-        self.specOptions.configure(state="disabled", width=10)
-        self.specOptions.grid(row=4, column=2, padx=0, pady=3, sticky="WE")
+        self.specOptions = mtk.make_OptionMenu(self.settingFrame, self.specVal, spec_list,
+                                               defaultval=SPEC_INFO[0].name, row=4, column=2, state=tk.DISABLED)
 
         # Synthesis Button
-        self.synButton = tk.Button(self, text="Generate Synthesis", command=self.gen_syn, state="disabled")
-        self.synButton.pack(padx=3, pady=3, fill="x")
-
+        self.synButton = mtk.make_Button(self, self.gen_syn,
+                                         text="Generate Synthesis", state=tk.DISABLED, grid_flag=False, fill="x")
         self.synWindow = None
 
         # Master Button
-        self.masterButton = tk.Button(self, text="Master Bias and Dark", command=self.open_master, state="disabled")
-        self.masterButton.pack(padx=3, pady=3, fill="x")
-
+        self.masterButton = mtk.make_Button(self, self.open_master,
+                                            text="Master Bias and Dark", state=tk.DISABLED, grid_flag=False, fill="x")
         self.masterWindow = None
         self.masterFlag = False
 
         # Bottom frame
-        self.bottomFrame = tk.Frame(self)
-        self.bottomFrame.pack(side="bottom", fill="x")
-        self.restartFrame = tk.Frame(self.bottomFrame)
-        self.restartFrame.pack(side="left", expand=True, fill="x")
-        self.closeFrame = tk.Frame(self.bottomFrame)
-        self.closeFrame.pack(side="right", expand=True, fill="x")
+        self.bottomFrame = tk.Frame(self, bg=FR_BG)
+        self.bottomFrame.pack(side=tk.BOTTOM, fill=tk.X)
+        self.restartFrame = tk.Frame(self.bottomFrame, bg=FR_BG)
+        self.restartFrame.pack(side=tk.LEFT, expand=True, fill=tk.X)
+        self.closeFrame = tk.Frame(self.bottomFrame, bg=FR_BG)
+        self.closeFrame.pack(side=tk.RIGHT, expand=True, fill=tk.X)
 
         # Restart button
-        self.restartButton = tk.Button(self.restartFrame, text="Restart", command=self.restart)
-        self.restartButton.pack(expand=True, fill="x", padx=3, pady=3)
+        self.restartButton = mtk.make_Button(self.restartFrame, self.restart,
+                                             text="Restart", pady=5, grid_flag=False, fill=tk.X, expand=True)
 
         # Close button
-        self.closeButton = tk.Button(self.closeFrame, text="Close", command=self.destroy)
-        self.closeButton.pack(expand=True, fill="x", padx=3, pady=3)
+        self.closeButton = mtk.make_Button(self.closeFrame, self.destroy,
+                                           text="Close", pady=5, grid_flag=False, fill=tk.X, expand=True)
 
     # Workspace selection
     def select_ws_path(self):
@@ -141,12 +125,12 @@ class MainWindow(tk.Tk):
         # Check star name
         print("Checking inserted name...")
         star_name = rm_spaces(self.starEntry.get())
-        self.starEntry.delete(0, "end")
+        mtk.clear_Entry(self.starEntry)
         if not star_name:
             print("Error: insert a star name!")
             self.starEntry.configure(bg=COL_ERR)
             return
-        self.starEntry.configure(bg=COL_NORM)
+        self.starEntry.configure(bg=EN_BG)
 
         self.listDim += 1
         list_dim = self.listDim
@@ -155,88 +139,135 @@ class MainWindow(tk.Tk):
             # Open star list window
             print("Opening star list window...")
             self.starListWindow = StarListWindow()
-            self.refButton.configure(state="normal")
-            self.refLabel.configure(state="normal")
-            self.refEntry.configure(state="normal")
+            self.refButton.configure(state=tk.NORMAL)
+            self.refLabel.configure(state=tk.NORMAL)
+            self.refEntry.configure(state=tk.NORMAL)
+
+        list_frame = self.starListWindow.listFrame
 
         print("Adding a new line in the star list window...")
         # New entry on the star list window
-        new_star_entry = tk.Entry(self.starListWindow.listFrame, width=20)
-        new_star_entry.grid(row=list_dim, column=0, padx=2, pady=3, sticky="WE")
-        new_star_entry.insert(0, star_name)
-        new_star_entry.configure(state="readonly")
+        new_star_entry = mtk.make_Entry(list_frame, text=star_name,
+                                        row=list_dim, column=1, padx=2, width=20, sticky=tk.EW, state="readonly")
         self.starListWindow.starEntries.append(new_star_entry)
 
-        new_pose_entry = tk.Entry(self.starListWindow.listFrame, width=6)
-        new_pose_entry.grid(row=list_dim, column=1, padx=1, pady=3, sticky="WE")
+        new_pose_entry = mtk.make_Entry(list_frame, row=list_dim, column=2, width=6, sticky=tk.EW)
         self.starListWindow.poseEntries.append(new_pose_entry)
 
-        new_flat_entry = tk.Entry(self.starListWindow.listFrame, width=6)
-        new_flat_entry.grid(row=list_dim, column=2, padx=1, pady=3, sticky="WE")
-        new_flat_entry.insert(0, 5)
+        new_flat_entry = mtk.make_Entry(list_frame, text=5, row=list_dim, column=3, width=6, sticky=tk.EW)
         self.starListWindow.flatEntries.append(new_flat_entry)
 
-        new_neon_entry = tk.Entry(self.starListWindow.listFrame, width=6)
-        new_neon_entry.grid(row=list_dim, column=3, padx=1, pady=3, sticky="WE")
-        new_neon_entry.insert(0, 3)
+        new_neon_entry = mtk.make_Entry(list_frame, text=3, row=list_dim, column=4, width=6, sticky=tk.EW)
         self.starListWindow.neonEntries.append(new_neon_entry)
 
-        new_dark_entry = tk.Entry(self.starListWindow.listFrame, width=6)
-        new_dark_entry.grid(row=list_dim, column=4, padx=1, pady=3, sticky="WE")
+        new_dark_entry = mtk.make_Entry(list_frame, row=list_dim, column=5, width=6, sticky=tk.EW)
         self.starListWindow.darkEntries.append(new_dark_entry)
 
-        new_standard_entry = tk.Entry(self.starListWindow.listFrame, width=10)
-        new_standard_entry.grid(row=list_dim, column=5, padx=1, pady=3, sticky="WE")
+        new_standard_entry = mtk.make_Entry(list_frame, row=list_dim, column=6, width=10, sticky=tk.EW)
         if is_standard(star_name):
-            new_standard_entry.configure(state="disabled")
+            new_standard_entry.configure(state=tk.DISABLED)
         self.starListWindow.standardEntries.append(new_standard_entry)
+
+        new_remove_button = mtk.make_Button(list_frame, text="-", row=list_dim, pady=1,
+                                            command=lambda to_remove=list_dim: self.remove_star(to_remove))
+        self.starListWindow.removeButtons.append(new_remove_button)
 
         # Resize star list window
         base_height = self.starListWindow.geometryBase.height
-        new_height = base_height + ENTRY_HEIGHT * list_dim
+        new_height = base_height + STARL_EN_HG * list_dim
         base_width = self.starListWindow.geometryBase.width
         self.starListWindow.geometry(str(base_width) + "x" + str(new_height))
 
         print("New star added successfully")
         return
 
+    # Remove a star from the list
+    def remove_star(self, row_to_remove):
+        print("REMOVE STAR")
+
+        index_to_remove = row_to_remove-1
+        name_to_remove = self.starListWindow.starEntries[index_to_remove].get()
+        # Check if the star to remove is the reference star
+        if is_standard(name_to_remove) and self.curRefEntry.get() == name_to_remove:
+            mtk.clear_Entry(self.curRefEntry)
+            self.starListWindow.refLabel.configure(state=tk.DISABLED)
+            mtk.clear_Entry(self.starListWindow.refEntry)
+            self.starListWindow.refPoseLabel.configure(state=tk.DISABLED)
+            mtk.clear_Entry(self.starListWindow.refPoseEntry, tk.DISABLED)
+
+        self.starListWindow.removeButtons.pop(index_to_remove).destroy()
+        self.starListWindow.starEntries.pop(index_to_remove).destroy()
+        self.starListWindow.poseEntries.pop(index_to_remove).destroy()
+        self.starListWindow.flatEntries.pop(index_to_remove).destroy()
+        self.starListWindow.neonEntries.pop(index_to_remove).destroy()
+        self.starListWindow.darkEntries.pop(index_to_remove).destroy()
+        self.starListWindow.standardEntries.pop(index_to_remove).destroy()
+
+        self.listDim -= 1
+
+        if self.listDim == 0:
+            self.starListWindow.destroy()
+            print("Star removed correctly")
+            return
+
+        for i in range(index_to_remove, self.listDim):
+            new_row = self.starListWindow.starEntries[i].grid_info().get("row")-1
+            self.starListWindow.removeButtons[i].configure(command=lambda to_remove=new_row:
+                                                           self.remove_star(to_remove))
+            self.starListWindow.removeButtons[i].grid(row=new_row)
+            self.starListWindow.starEntries[i].grid(row=new_row)
+            self.starListWindow.poseEntries[i].grid(row=new_row)
+            self.starListWindow.flatEntries[i].grid(row=new_row)
+            self.starListWindow.neonEntries[i].grid(row=new_row)
+            self.starListWindow.darkEntries[i].grid(row=new_row)
+            self.starListWindow.standardEntries[i].grid(row=new_row)
+
+        # Resize star list window
+        base_height = self.starListWindow.geometryBase.height
+        new_height = base_height + STARL_EN_HG * self.listDim
+        base_width = self.starListWindow.geometryBase.width
+        self.starListWindow.geometry(str(base_width) + "x" + str(new_height))
+
+        print("Star removed correctly")
+        return
+
     # Add reference star
-    def add_ref(self):
-        print("ADD REF")
+    def select_ref(self):
+        print("SELECT REF")
 
         # Check ref name
         print("Checking inserted name...")
         ref_name = rm_spaces(self.refEntry.get())
-        self.refEntry.delete(0, "end")
+        mtk.clear_Entry(self.refEntry)
         if not ref_name:
             print("Error: insert a star name!")
             self.refEntry.configure(bg=COL_ERR)
             return
 
         for i in range(0, self.listDim):
-            if ref_name == self.starListWindow.starEntries[i].get():
-                print("Setting the reference star...")
-                # Set reference star
-                self.refName = ref_name
+            if ref_name != self.starListWindow.starEntries[i].get():
+                continue
 
-                self.refEntry.configure(bg=COL_NORM)
+            print("Setting the reference star...")
+            # Set reference star
+            self.refName = ref_name
 
-                self.curRefLabel.configure(state="normal")
-                self.curRefEntry.configure(state="normal")
-                self.curRefEntry.delete(0, "end")
-                self.curRefEntry.insert(0, ref_name)
-                self.curRefEntry.configure(state="readonly")
+            self.refEntry.configure(bg=EN_BG)
 
-                self.starListWindow.refLabel.configure(state="normal")
-                self.starListWindow.refEntry.configure(state="normal")
-                self.starListWindow.refEntry.delete(0, "end")
-                self.starListWindow.refEntry.insert(0, ref_name)
-                self.starListWindow.refEntry.configure(state="readonly")
-                self.starListWindow.refPoseLabel.configure(state="normal")
-                self.starListWindow.refPoseEntry.configure(state="normal")
+            self.curRefLabel.configure(state=tk.NORMAL)
+            mtk.clear_Entry(self.curRefEntry, tk.NORMAL)
+            self.curRefEntry.insert(0, ref_name)
+            self.curRefEntry.configure(state="readonly")
 
-                print("Reference star set successfully")
-                return
+            self.starListWindow.refLabel.configure(state=tk.NORMAL)
+            mtk.clear_Entry(self.starListWindow.refEntry, tk.NORMAL)
+            self.starListWindow.refEntry.insert(0, ref_name)
+            self.starListWindow.refEntry.configure(state="readonly")
+            self.starListWindow.refPoseLabel.configure(state=tk.NORMAL)
+            self.starListWindow.refPoseEntry.configure(state=tk.NORMAL)
+
+            print("Reference star set successfully")
+            return
 
         print("Error: illegal reference star name!")
         self.refEntry.configure(bg=COL_ERR)
@@ -279,30 +310,25 @@ class MainWindow(tk.Tk):
         self.refPose = None
         self.masterFlag = False
 
-        self.wsButton.configure(state="normal")
-        self.wsLabel.configure(state="normal")
-        self.wsEntry.configure(state="normal")
-        self.wsEntry.delete(0, "end")
-        self.wsEntry.configure(state="readonly")
+        self.wsButton.configure(state=tk.NORMAL)
+        self.wsLabel.configure(state=tk.NORMAL)
+        mtk.clear_Entry(self.wsEntry)
 
-        self.starButton.configure(state="disabled")
-        self.starLabel.configure(state="disabled")
-        self.starEntry.configure(state="disabled")
+        self.starButton.configure(state=tk.DISABLED)
+        self.starLabel.configure(state=tk.DISABLED)
+        mtk.clear_Entry(self.starEntry, tk.DISABLED)
 
-        self.refButton.configure(state="disabled")
-        self.refLabel.configure(state="disabled")
-        self.refEntry.configure(state="disabled")
-        self.curRefLabel.configure(state="disabled")
-        self.curRefEntry.configure(state="normal")
-        self.curRefEntry.delete(0, "end")
-        self.curRefEntry.configure(state="disabled")
+        self.refButton.configure(state=tk.DISABLED)
+        self.refLabel.configure(state=tk.DISABLED)
+        mtk.clear_Entry(self.refEntry, tk.DISABLED)
+        self.curRefLabel.configure(state=tk.DISABLED)
+        mtk.clear_Entry(self.curRefEntry)
 
-        self.specLabel.configure(state="disabled")
-        self.specOptions.configure(state="disabled")
+        self.specLabel.configure(state=tk.DISABLED)
+        self.specOptions.configure(state=tk.DISABLED)
 
-        self.synButton.configure(state="disabled")
-
-        self.masterButton.configure(state="disabled")
+        self.synButton.configure(state=tk.DISABLED)
+        self.masterButton.configure(state=tk.DISABLED)
 
         return
 
@@ -314,30 +340,25 @@ class StarListWindow(tk.Toplevel):
         self.title("Star List")
 
         if platform == "linux":
-            self.geometryBase = WinGeometry(485, 90, 110, 260)
+            self.geometryBase = WinGeometry(510, 90, 420, 100)
         else:
-            self.geometryBase = WinGeometry(365, 85, 110, 260)
+            self.geometryBase = WinGeometry(390, 85, 420, 100)
         self.geometry(str(self.geometryBase))
         self.resizable(False, False)
+        self.configure(bg=FR_BG)
 
         self._errFlag = False
 
         # Star list
-        self.listFrame = tk.Frame(self)
+        self.listFrame = tk.Frame(self, bg=FR_BG)
         self.listFrame.grid()
 
-        self.starLabel = tk.Label(self.listFrame, text="Star")
-        self.starLabel.grid(row=0, column=0, padx=1, pady=2, sticky="WE")
-        self.poseLabel = tk.Label(self.listFrame, text="Poses")
-        self.poseLabel.grid(row=0, column=1, padx=1, pady=2, sticky="WE")
-        self.flatLabel = tk.Label(self.listFrame, text="Flat")
-        self.flatLabel.grid(row=0, column=2, padx=1, pady=2, sticky="WE")
-        self.neonLabel = tk.Label(self.listFrame, text="Neon")
-        self.neonLabel.grid(row=0, column=3, padx=1, pady=2, sticky="WE")
-        self.darkLabel = tk.Label(self.listFrame, text="Dark T")
-        self.darkLabel.grid(row=0, column=4, padx=1, pady=2, sticky="WE")
-        self.standardLabel = tk.Label(self.listFrame, text="Standard")
-        self.standardLabel.grid(row=0, column=5, padx=1, pady=2, sticky="WE")
+        self.starLabel = mtk.make_Label(self.listFrame, text="Star", column=1, pady=2, sticky=tk.EW)
+        self.poseLabel = mtk.make_Label(self.listFrame, text="Poses", column=2, pady=2, sticky=tk.EW)
+        self.flatLabel = mtk.make_Label(self.listFrame, text="Flat", column=3, pady=2, sticky=tk.EW)
+        self.neonLabel = mtk.make_Label(self.listFrame, text="Neon", column=4, pady=2, sticky=tk.EW)
+        self.darkLabel = mtk.make_Label(self.listFrame, text="Dark T", column=5, pady=2, sticky=tk.EW)
+        self.standardLabel = mtk.make_Label(self.listFrame, text="Standard", column=6, pady=2, sticky=tk.EW)
 
         self.starEntries = []
         self.poseEntries = []
@@ -345,23 +366,19 @@ class StarListWindow(tk.Toplevel):
         self.neonEntries = []
         self.darkEntries = []
         self.standardEntries = []
+        self.removeButtons = []
 
         # Ref frame
-        self.refFrame = tk.Frame(self)
+        self.refFrame = tk.Frame(self, bg=FR_BG)
         self.refFrame.grid()
 
-        self.refLabel = tk.Label(self.refFrame, text="REF: ", state="disabled")
-        self.refLabel.grid(row=0, column=0, padx=2, pady=3, sticky="E")
-        self.refEntry = tk.Entry(self.refFrame, width=15, state="disabled")
-        self.refEntry.grid(row=0, column=1, padx=2, pady=3, sticky="WE")
-        self.refPoseLabel = tk.Label(self.refFrame, text="REF pose: ", state="disabled")
-        self.refPoseLabel.grid(row=0, column=2, padx=2, pady=3, sticky="E")
-        self.refPoseEntry = tk.Entry(self.refFrame, width=5, state="disabled")
-        self.refPoseEntry.grid(row=0, column=3, padx=2, pady=3, sticky="WE")
+        self.refLabel = mtk.make_Label(self.refFrame, text="REF: ", padx=2, state=tk.DISABLED)
+        self.refEntry = mtk.make_Entry(self.refFrame, column=1, padx=2, sticky=tk.EW, state=tk.DISABLED)
+        self.refPoseLabel = mtk.make_Label(self.refFrame, text="REF pose: ", column=2, padx=2, state=tk.DISABLED)
+        self.refPoseEntry = mtk.make_Entry(self.refFrame, width=5, column=3, padx=2, sticky=tk.EW, state=tk.DISABLED)
 
         # Start button
-        self.startButton = tk.Button(self, text="Start Session", command=self.start_session)
-        self.startButton.grid(padx=3, pady=2, sticky="WE")
+        self.startButton = mtk.make_Button(self, self.start_session, text="Start Session", row=2, pady=2)
 
     # Create general IRAF files
     def start_session(self):
@@ -391,7 +408,7 @@ class StarListWindow(tk.Toplevel):
             self.master.refPose = None
             self._errFlag = True
         else:
-            self.refPoseEntry.configure(bg=COL_NORM)
+            self.refPoseEntry.configure(bg=EN_BG)
             self.master.refPose = int(ref_pose_str)
 
         # Check and retrieve stars information
@@ -412,7 +429,7 @@ class StarListWindow(tk.Toplevel):
                 star_pose = None
                 self._errFlag = True
             else:
-                self.poseEntries[i].configure(bg=COL_NORM)
+                self.poseEntries[i].configure(bg=EN_BG)
                 star_pose = int(pose_entry_str)
 
             if not flat_entry_str or int(flat_entry_str) <= 0:
@@ -421,7 +438,7 @@ class StarListWindow(tk.Toplevel):
                 star_flat = None
                 self._errFlag = True
             else:
-                self.flatEntries[i].configure(bg=COL_NORM)
+                self.flatEntries[i].configure(bg=EN_BG)
                 star_flat = int(flat_entry_str)
 
             if not neon_entry_str or int(neon_entry_str) <= 0:
@@ -430,7 +447,7 @@ class StarListWindow(tk.Toplevel):
                 star_neon = None
                 self._errFlag = True
             else:
-                self.neonEntries[i].configure(bg=COL_NORM)
+                self.neonEntries[i].configure(bg=EN_BG)
                 star_neon = int(neon_entry_str)
 
             if not dark_entry_str or int(dark_entry_str) <= 0:
@@ -439,7 +456,7 @@ class StarListWindow(tk.Toplevel):
                 star_dark = None
                 self._errFlag = True
             else:
-                self.neonEntries[i].configure(bg=COL_NORM)
+                self.neonEntries[i].configure(bg=EN_BG)
                 star_dark = int(dark_entry_str)
 
             if not is_standard(star_entry):
@@ -452,7 +469,7 @@ class StarListWindow(tk.Toplevel):
                     for j in range(0, list_dim):
                         if standard_entry != self.starEntries[j].get():
                             continue
-                        self.standardEntries[i].configure(bg=COL_NORM)
+                        self.standardEntries[i].configure(bg=EN_BG)
                         std_pose = int(self.poseEntries[j].get())
                         std_flag = True
                         break
@@ -519,22 +536,25 @@ class StarListWindow(tk.Toplevel):
         print("All initial files have been created successfully")
 
         # Enable Synthesis button
-        self.master.synButton.configure(state="normal")
+        self.master.synButton.configure(state=tk.NORMAL)
 
         # Disable first part
-        self.master.wsButton.configure(state="disabled")
-        self.master.wsLabel.configure(state="disabled")
-        self.master.wsEntry.configure(state="disabled")
+        self.master.wsButton.configure(state=tk.DISABLED)
+        self.master.wsLabel.configure(state=tk.DISABLED)
+        self.master.wsEntry.configure(state=tk.DISABLED)
 
-        self.master.starButton.configure(state="disabled")
-        self.master.starLabel.configure(state="disabled")
-        self.master.starEntry.configure(state="disabled")
+        self.master.starButton.configure(state=tk.DISABLED)
+        self.master.starLabel.configure(state=tk.DISABLED)
+        self.master.starEntry.configure(state=tk.DISABLED)
 
-        self.master.refButton.configure(state="disabled")
-        self.master.refLabel.configure(state="disabled")
-        self.master.refEntry.configure(state="disabled")
-        self.master.curRefLabel.configure(state="disabled")
-        self.master.curRefEntry.configure(state="disabled")
+        self.master.refButton.configure(state=tk.DISABLED)
+        self.master.refLabel.configure(state=tk.DISABLED)
+        self.master.refEntry.configure(state=tk.DISABLED)
+        self.master.curRefLabel.configure(state=tk.DISABLED)
+        self.master.curRefEntry.configure(state=tk.DISABLED)
+
+        self.master.specLabel.configure(state=tk.DISABLED)
+        self.master.specOptions.configure(state=tk.DISABLED)
 
         # Close star list window
         print("Closing star list window...")
@@ -550,11 +570,12 @@ class SynthesisWindow(tk.Toplevel):
         self.geometryBase = WinGeometry(600, 150, 110, 260)
         self.geometry(str(self.geometryBase))
         self.minsize(300, 100)
+        self.configure(bg=FR_BG)
 
         # Synthesis
-        self.synFrame = tk.Frame(self)
+        self.synFrame = tk.Frame(self, bg=FR_BG)
         self.synFrame.pack(expand=True, fill="both")
-        self.synText = tk.Text(self.synFrame, state="normal")
+        self.synText = tk.Text(self.synFrame, state="normal", bg=EN_BG, fg=GEN_FG, relief=tk.FLAT)
         self.synText.pack(expand=True, fill="both")
 
         syn_string = ""
@@ -590,11 +611,12 @@ class MasterWindow(tk.Toplevel):
             self.geometryBase = WinGeometry(190, 155, 110, 260)
         self.geometry(str(self.geometryBase))
         self.resizable(False, False)
+        self.configure(bg=FR_BG)
 
         self._errFlag = False
 
         # Bias Frame
-        self.biasFrame = tk.Frame(self)
+        self.biasFrame = tk.Frame(self, bg=FR_BG)
         self.biasFrame.grid()
         self.biasLabel = tk.Label(self.biasFrame, text="Bias Num Pose: ")
         self.biasLabel.grid(row=0, column=0, padx=1, pady=2, sticky="WE")
@@ -651,7 +673,7 @@ class MasterWindow(tk.Toplevel):
 
         # Resize the Master Window
         base_height = self.geometryBase.height
-        new_height = base_height + ENTRY_HEIGHT * (self.listDim - 1)
+        new_height = base_height + STARL_EN_HG * (self.listDim - 1)
         base_width = self.geometryBase.width
         self.geometry(str(base_width) + "x" + str(new_height))
 
@@ -680,8 +702,13 @@ class MasterWindow(tk.Toplevel):
         return
 
 
-# Main window
-mainFrame = MainWindow()
+if __name__ == "__main__":
+    # Main window
+    mainFrame = MainWindow()
 
-# Run application
-mainFrame.mainloop()
+    # ttk style
+    style = ttk.Style(mainFrame)
+    style.configure(OM_STYLE, background=OM_BG, foreground=OM_FG)
+
+    # Run application
+    mainFrame.mainloop()
