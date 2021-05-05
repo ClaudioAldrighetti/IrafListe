@@ -1,4 +1,7 @@
-# Utility functions and classes
+# Utility macros, functions and classes
+DARK = "dark"
+BIAS = "bias"
+
 
 def rm_spaces(this_str):
     return "".join(this_str.split())
@@ -6,6 +9,14 @@ def rm_spaces(this_str):
 
 def is_standard(this_name):
     return this_name[:2].upper() == "HR"
+
+
+def resized_window(this_window, num_record, record_dim):
+    base_height = this_window.geometryBase.height
+    new_height = base_height + record_dim * num_record
+    base_width = this_window.geometryBase.width
+    this_window.geometry(str(base_width) + "x" + str(new_height))
+    return this_window
 
 
 class WinGeometry:
@@ -28,10 +39,11 @@ class SpecInfo:
         self.l_row = l_row
 
 
-class DarkInfo:
-    def __init__(self, pose, dark_time):
-        self.pose = pose
-        self.dark_time = dark_time
+class MasterInfo:
+    def __init__(self, master_type, master_poses, master_time):
+        self.master_type = master_type
+        self.master_poses = master_poses
+        self.master_time = master_time
 
 
 class StarInfo:

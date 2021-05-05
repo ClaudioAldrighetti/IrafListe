@@ -4,7 +4,8 @@ from operator import attrgetter
 
 from utility import *
 
-# START SESSION
+# STAR SESSION
+
 
 def make_Pulizia0(ws_path):
     print("Creating pulizia0.txt file...")
@@ -18,6 +19,7 @@ def make_Pulizia0(ws_path):
             "cd ..\n")
     new_file.close()
     return
+
 
 def make_CreaDarkati(ws_path, star_list, list_dim):
     print("Creating crea_darkati.txt file...")
@@ -53,6 +55,7 @@ def make_CreaDarkati(ws_path, star_list, list_dim):
     new_file.close()
     return
 
+
 def make_ListaGenerale(ws_path, star_list, list_dim):
     print("Creating lista_generale.txt file...")
     file_path = opt.join(ws_path, "lista_generale.txt")
@@ -72,6 +75,7 @@ def make_ListaGenerale(ws_path, star_list, list_dim):
 
     new_file.close()
     return
+
 
 def make_ListaBiassati(ws_path, star_list, list_dim):
     print("Creating lista_biassati.txt file...")
@@ -93,6 +97,7 @@ def make_ListaBiassati(ws_path, star_list, list_dim):
     new_file.close()
     return
 
+
 def make_FLAT(ws_path, star_list, list_dim):
     print("Creating FLAT files...")
     for i in range(0, list_dim):
@@ -106,6 +111,7 @@ def make_FLAT(ws_path, star_list, list_dim):
 
         new_file.close()
     return
+
 
 def make_Pulizia1(ws_path):
     print("Creating pulizia1.txt file...")
@@ -129,6 +135,7 @@ def make_Pulizia1(ws_path):
     new_file.close()
     return
 
+
 def make_GeneraMasterFlat(ws_path, star_list, list_dim, min_h_pixel, max_h_pixel, h_image, l_row):
     print("Creating genera_master_flat.txt file...")
     file_path = opt.join(ws_path, "genera_master_flat.txt")
@@ -142,7 +149,7 @@ def make_GeneraMasterFlat(ws_path, star_list, list_dim, min_h_pixel, max_h_pixel
                 "medflat_" + star_info.name + ".fit combine=average reject=none\n"
                 "blkavg medflat_" + star_info.name + ".fit"
                 "[*," + str(min_h_pixel) + ":" + str(max_h_pixel) + "] "
-                "avcol_in_" + star_info.name + ".fit 1 " + str(l_row) +"\n"
+                "avcol_in_" + star_info.name + ".fit 1 " + str(l_row) + "\n"
                 "blkrep avcol_in_" + star_info.name + ".fit "
                 "avcol_out_" + star_info.name + ".fit 1 " + str(h_image) + "\n"
                 "imarith medflat_" + star_info.name + ".fit / "
@@ -156,6 +163,7 @@ def make_GeneraMasterFlat(ws_path, star_list, list_dim, min_h_pixel, max_h_pixel
 
     new_file.close()
     return
+
 
 def make_ListaFlattati(ws_path, star_list, list_dim):
     print("Creating lista_flattati.txt file...")
@@ -180,6 +188,7 @@ def make_ListaFlattati(ws_path, star_list, list_dim):
     new_file.close()
     return
 
+
 def make_ListaTracciamoStelle(ws_path, star_list, list_dim):
     print("Creating lista_tracciamo_stelle.txt file...")
     file_path = opt.join(ws_path, "lista_tracciamo_stelle.txt")
@@ -194,6 +203,7 @@ def make_ListaTracciamoStelle(ws_path, star_list, list_dim):
     new_file.close()
     return
 
+
 def make_Pulizia2(ws_path):
     print("Creating pulizia2.txt file...")
     file_path = opt.join(ws_path, "pulizia2.txt")
@@ -206,6 +216,7 @@ def make_Pulizia2(ws_path):
             "mv NEON_* 05_neon\n")
     new_file.close()
     return
+
 
 def make_NEON(ws_path, star_list, list_dim):
     print("Creating NEON files...")
@@ -220,6 +231,7 @@ def make_NEON(ws_path, star_list, list_dim):
 
         new_file.close()
     return
+
 
 def make_GeneraMasterNeon(ws_path, star_list, list_dim):
     print("Creating genera_master_neon.txt file...")
@@ -241,6 +253,7 @@ def make_GeneraMasterNeon(ws_path, star_list, list_dim):
     new_file.close()
     return
 
+
 def make_ListaApallNe(ws_path, star_list, list_dim):
     print("Creating lista_apall_Ne.txt file...")
     file_path = opt.join(ws_path, "lista_apall_Ne.txt")
@@ -259,6 +272,7 @@ def make_ListaApallNe(ws_path, star_list, list_dim):
     new_file.close()
     return
 
+
 def make_ListaReidentify(ws_path, star_list, list_dim, ref_name, ref_pose):
     print("Creating lista_reidentify.txt file...")
     file_path = opt.join(ws_path, "lista_reidentify.txt")
@@ -276,6 +290,7 @@ def make_ListaReidentify(ws_path, star_list, list_dim, ref_name, ref_pose):
     new_file.close()
     return
 
+
 def make_ListaChiConChi(ws_path, star_list, list_dim):
     print("Creating lista_chi_con_chi.txt file...")
     file_path = opt.join(ws_path, "lista_chi_con_chi.txt")
@@ -292,6 +307,7 @@ def make_ListaChiConChi(ws_path, star_list, list_dim):
     new_file.close()
     return
 
+
 def make_ListaCalibraLambda(ws_path, star_list, list_dim):
     print("Creating lista_calibra_lambda.txt file...")
     file_path = opt.join(ws_path, "lista_calibra_lambda.txt")
@@ -307,6 +323,7 @@ def make_ListaCalibraLambda(ws_path, star_list, list_dim):
 
     new_file.close()
     return
+
 
 def make_STANDARD(ws_path, star_list, list_dim):
     print("Creating STANDARD files...")
@@ -328,6 +345,7 @@ def make_STANDARD(ws_path, star_list, list_dim):
         new_file.close()
     return
 
+
 def make_DaFlussare(ws_path, star_list, list_dim):
     print("Creating FLUSSARE files...")
     for i in range(0, list_dim):
@@ -348,6 +366,7 @@ def make_DaFlussare(ws_path, star_list, list_dim):
         new_file.close()
     return
 
+
 def make_Flussati(ws_path, star_list, list_dim):
     print("Creating FLUSSATI files...")
     for i in range(0, list_dim):
@@ -367,6 +386,7 @@ def make_Flussati(ws_path, star_list, list_dim):
 
         new_file.close()
     return
+
 
 def make_HelioRename(ws_path, star_list, list_dim):
     print("Creating HELIO files...")
@@ -392,6 +412,7 @@ def make_HelioRename(ws_path, star_list, list_dim):
         new_file.close()
     return
 
+
 def make_RvCorrected(ws_path, star_list, list_dim):
     print("Creating RV_CORRECTED files...")
     for i in range(0, list_dim):
@@ -411,6 +432,7 @@ def make_RvCorrected(ws_path, star_list, list_dim):
 
         new_file.close()
     return
+
 
 def make_PreparoHelio(ws_path, star_list, list_dim):
     print("Creating PREPARO_HELIO files...")
@@ -434,6 +456,7 @@ def make_PreparoHelio(ws_path, star_list, list_dim):
         new_file.close()
     return
 
+
 def make_Mediana(ws_path, star_list, list_dim):
     print("Creating MEDIANA files...")
     for i in range(0, list_dim):
@@ -448,6 +471,7 @@ def make_Mediana(ws_path, star_list, list_dim):
 
         new_file.close()
     return
+
 
 def make_Pulizia3(ws_path, star_list, list_dim):
     print("Creating pulizia3.txt file...")
@@ -474,6 +498,7 @@ def make_Pulizia3(ws_path, star_list, list_dim):
     new_file.close()
     return
 
+
 def make_Pulizia4(ws_path):
     print("Creating pulizia4.txt file...")
     file_path = opt.join(ws_path, "pulizia4.txt")
@@ -490,13 +515,14 @@ def make_Pulizia4(ws_path):
     new_file.close()
     return
 
+
 def make_ListaInizio(ws_path, dark_flag):
     print("Creating lista_inizio.txt file...")
     file_path = opt.join(ws_path, "lista_inizio.txt")
     with open(file_path, "w") as new_file:
         new_file.write(
             "cl < pulizia0.txt\n")
-        if(dark_flag):
+        if dark_flag:
             new_file.write(
                 "cl < crea_master_db.txt\n")
         new_file.write(
@@ -510,36 +536,43 @@ def make_ListaInizio(ws_path, dark_flag):
     new_file.close()
     return
 
+
 # GEN MASTER
 
-def make_DARK(ws_path, dark_list, list_dim):
+
+def make_DARK(ws_path, master_list, list_dim):
     print("Creating LISTA DARK files...")
     for i in range(0, list_dim):
-        pose = dark_list[i].pose
-        dark_time = dark_list[i].dark_time
+        if master_list[i].master_type == BIAS:
+            continue
+
+        dark_poses = master_list[i].master_poses
+        dark_time = master_list[i].master_time
 
         file_name = "lista_dark_" + str(dark_time) + ".txt"
         file_path = opt.join(ws_path, file_name)
         with open(file_path, "w") as new_file:
 
-            for i_pose in range(1, pose + 1):
+            for i_pose in range(1, dark_poses + 1):
                 new_file.write("DARK_" + str(dark_time) + "-" + str(i_pose) + ".fit\n")
 
         new_file.close()
     return
 
-def make_ListaBias(ws_path, bias_pose):
+
+def make_ListaBias(ws_path, bias_poses):
     print("Creating lista_bias.txt files...")
     file_path = opt.join(ws_path, "lista_bias.txt")
     with open(file_path, "w") as new_file:
 
-        for i_pose in range(1, bias_pose + 1):
+        for i_pose in range(1, bias_poses + 1):
             new_file.write("BIAS" + "-" + str(i_pose) + ".fit\n")
 
     new_file.close()
     return
 
-def make_CreaMasterDb(ws_path, dark_list, list_dim):
+
+def make_CreaMasterDb(ws_path, master_list, list_dim):
     print("Creating crea_master_db.txt file...")
     file_path = opt.join(ws_path, "crea_master_db.txt")
     with open(file_path, "w") as new_file:
@@ -560,13 +593,16 @@ def make_CreaMasterDb(ws_path, dark_list, list_dim):
             "cp ../master_bias.fit .\n")
 
         for i in range(0, list_dim):
-            dark_time = dark_list[i].dark_time
+            if master_list[i].master_type == BIAS:
+                continue
+
+            master_time = master_list[i].master_time
             new_file.write(
-                "imcombine @lista_dark_" + str(dark_time) + ".txt "
-                "dark_no_bias_" + str(dark_time) + ".fit "
+                "imcombine @lista_dark_" + str(master_time) + ".txt "
+                "dark_no_bias_" + str(master_time) + ".fit "
                 "combine=average reject=minmax nlow=1 nhigh=1\n"
-                "imarith dark_no_bias_" + str(dark_time) + ".fit - "
-                "master_bias.fit master_dark_" + str(dark_time) + ".fit\n")
+                "imarith dark_no_bias_" + str(master_time) + ".fit - "
+                "master_bias.fit master_dark_" + str(master_time) + ".fit\n")
 
         new_file.write(
             "cp master_dark* ../\n"

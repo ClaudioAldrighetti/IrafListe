@@ -1,11 +1,8 @@
 # Windows configuration
 from sys import platform
 import tkinter as tk
-import tkinter.ttk as ttk
 
 from utility import SpecInfo
-
-# ttk.Style is configured in main
 
 # Spectrographs list with data (name, min_h_pixel, max_h_pixel, h_image, l_row)
 SPEC_INFO = [
@@ -18,6 +15,7 @@ if platform == "linux":
     STARL_EN_HG = 34
 else:
     STARL_EN_HG = 30
+MASTERL_EN_HG = STARL_EN_HG
 
 # General
 GEN_FG = "#dadada"
@@ -39,7 +37,7 @@ EN_FG = GEN_FG
 EN_INS = "#f0f0f0"
 COL_ERR = "Red"
 
-# Option Menù style
+# Option Menu style
 OM_STYLE = "Optionmenu.TMenubutton"
 OM_BG = EN_BG
 OM_FG = GEN_FG
@@ -50,3 +48,8 @@ OM_BDT = 1
 # Labels style
 LB_BG = FR_BG
 LB_FG = GEN_FG
+
+# Separators style
+SEP_STYLE = "MySep.TSeparator"
+SEP_BG = "#595959"
+SEP_HGT = 2
