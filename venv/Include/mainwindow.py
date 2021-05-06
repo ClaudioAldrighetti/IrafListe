@@ -462,7 +462,6 @@ class MainWindow(tk.Tk):
         self.refPose = None
 
         self.masterListDim = 0
-        self.masterListWindow = None
         self.masterFlag = False
 
         self.wsButton.configure(state=tk.NORMAL)

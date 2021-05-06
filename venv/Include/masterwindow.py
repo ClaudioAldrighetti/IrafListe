@@ -17,8 +17,7 @@ class MasterListWindow(tk.Toplevel):
         self.geometry(str(self.defGeometry))
         self.resizable(False, False)
         self.configure(bg=FR_BG)
-
-        self._errFlag = False
+        self.protocol("WM_DELETE_WINDOW", self.close)
 
         # Master list
         self.listFrame = tk.Frame(self, bg=FR_BG)
@@ -77,5 +76,23 @@ class MasterListWindow(tk.Toplevel):
 
         # Close master list window
         print("Closing master list window...")
+        self.destroy()
+        return
+
+    def close(self):
+        print("CLOSE")
+
+        # Delete star list information
+        print("Deleting master list information...")
+        self.master.masterListDim = 0
+        self.master.masterFlag = False
+
+        self.master.biasButton.configure(state=tk.NORMAL)
+        self.master.biasPosesLabel.configure(state=tk.NORMAL)
+        self.master.biasPosesEntry.configure(state=tk.NORMAL)
+
+        # Close master list window
+        print("Closing master list window...")
+        self.master.masterListWindow = None
         self.destroy()
         return

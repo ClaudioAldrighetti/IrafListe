@@ -19,8 +19,7 @@ class StarListWindow(tk.Toplevel):
         self.geometry(str(self.defGeometry))
         self.resizable(False, False)
         self.configure(bg=FR_BG)
-
-        self._errFlag = False
+        self.protocol("WM_DELETE_WINDOW", self.close)
 
         # Star list
         self.listFrame = tk.Frame(self, bg=FR_BG)
@@ -57,6 +56,8 @@ class StarListWindow(tk.Toplevel):
     def start_session(self):
         print("START SESSION")
 
+        err_flag = False
+
         ref_pose_str = rm_spaces(self.refPoseEntry.get())
         master_flag = self.master.masterFlag
         self.master.starList = []
@@ -65,13 +66,13 @@ class StarListWindow(tk.Toplevel):
         # Check workspace directory
         if not os.path.exists(self.master.wsPath):
             print("Error: workspace directory doesn't exist!")
-            self._errFlag = True
+            err_flag = True
         ws_path = self.master.wsPath
 
         # Check star list length
         if self.master.listDim == 0:
             print("Error: star list is empty!")
-            self._errFlag = True
+            err_flag = True
         list_dim = self.master.listDim
 
         # Check reference pose
@@ -79,7 +80,7 @@ class StarListWindow(tk.Toplevel):
             print("Error: illegal reference pose value!")
             self.refPoseEntry.configure(bg=COL_ERR)
             self.master.refPose = None
-            self._errFlag = True
+            err_flag = True
         else:
             self.refPoseEntry.configure(bg=EN_BG)
             self.master.refPose = int(ref_pose_str)
@@ -100,7 +101,7 @@ class StarListWindow(tk.Toplevel):
                 print("Error: illegal pose value for star: " + star_entry + "!")
                 self.poseEntries[i].configure(bg=COL_ERR)
                 star_pose = None
-                self._errFlag = True
+                err_flag = True
             else:
                 self.poseEntries[i].configure(bg=EN_BG)
                 star_pose = int(pose_entry_str)
@@ -109,7 +110,7 @@ class StarListWindow(tk.Toplevel):
                 print("Error: illegal flat value for star: " + star_entry + "!")
                 self.flatEntries[i].configure(bg=COL_ERR)
                 star_flat = None
-                self._errFlag = True
+                err_flag = True
             else:
                 self.flatEntries[i].configure(bg=EN_BG)
                 star_flat = int(flat_entry_str)
@@ -118,7 +119,7 @@ class StarListWindow(tk.Toplevel):
                 print("Error: illegal neon value for star: " + star_entry + "!")
                 self.neonEntries[i].configure(bg=COL_ERR)
                 star_neon = None
-                self._errFlag = True
+                err_flag = True
             else:
                 self.neonEntries[i].configure(bg=EN_BG)
                 star_neon = int(neon_entry_str)
@@ -127,7 +128,7 @@ class StarListWindow(tk.Toplevel):
                 print("Error: illegal dark time value for star: " + star_entry + "!")
                 self.darkEntries[i].configure(bg=COL_ERR)
                 star_dark = None
-                self._errFlag = True
+                err_flag = True
             else:
                 self.neonEntries[i].configure(bg=EN_BG)
                 star_dark = int(dark_entry_str)
@@ -137,7 +138,7 @@ class StarListWindow(tk.Toplevel):
                     print("Error: invalid standard for star: " + star_entry + "!")
                     self.standardEntries[i].configure(bg=COL_ERR)
                     standard_entry = None
-                    self._errFlag = True
+                    err_flag = True
                 else:
                     for j in range(0, list_dim):
                         if standard_entry != self.starEntries[j].get():
@@ -154,7 +155,7 @@ class StarListWindow(tk.Toplevel):
                 print("Error: standard not found for star: " + star_entry + "!")
                 self.standardEntries[i].configure(bg=COL_ERR)
                 standard_entry = None
-                self._errFlag = True
+                err_flag = True
 
             star_info = StarInfo(star_entry, star_pose, star_flat, star_neon, star_dark, standard_entry, std_pose)
             self.master.starList.append(star_info)
@@ -169,10 +170,9 @@ class StarListWindow(tk.Toplevel):
         if spec_info is None:
             # Quite impossible error, it's just for the sake of security...
             print("Error: invalid spectrograph!")
-            self._errFlag = True
+            err_flag = True
 
-        if self._errFlag:
-            self._errFlag = False
+        if err_flag:
             return
 
         star_list = self.master.starList
@@ -233,5 +233,27 @@ class StarListWindow(tk.Toplevel):
 
         # Close star list window
         print("Closing star list window...")
+        self.master.starListWindow = None
+        self.destroy()
+        return
+
+    def close(self):
+        print("CLOSE")
+
+        # Delete star list information
+        print("Deleting star list information...")
+        self.master.listDim = 0
+        self.master.refName = None
+        self.master.refPose = None
+
+        self.master.refButton.configure(state=tk.DISABLED)
+        self.master.refLabel.configure(state=tk.DISABLED)
+        mtk.clear_Entry(self.master.refEntry, tk.DISABLED)
+        self.master.curRefLabel.configure(state=tk.DISABLED)
+        mtk.clear_Entry(self.master.curRefEntry, tk.DISABLED)
+
+        # Close star list window
+        print("Closing star list window...")
+        self.master.starListWindow = None
         self.destroy()
         return
