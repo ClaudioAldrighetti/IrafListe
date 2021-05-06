@@ -13,11 +13,8 @@ class MasterListWindow(tk.Toplevel):
         super().__init__(master=master)
         self.title("Master List")
 
-        if platform == "linux":
-            self.geometryBase = WinGeometry(270, 65, 420, 370)
-        else:
-            self.geometryBase = WinGeometry(160, 60, 420, 370)
-        self.geometry(str(self.geometryBase))
+        self.defGeometry = MASTER_WIN_DEF_GEOM
+        self.geometry(str(self.defGeometry))
         self.resizable(False, False)
         self.configure(bg=FR_BG)
 

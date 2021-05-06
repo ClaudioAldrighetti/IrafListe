@@ -1,4 +1,5 @@
 # import tkinter as tk
+# import tkinter
 from tkinter import filedialog as fd
 # import tkinter.ttk as ttk
 
@@ -16,13 +17,8 @@ class MainWindow(tk.Tk):
         super().__init__()
         self.title("IRAF Liste")
 
-        if platform == "linux":
-            # Linux distribution configuration
-            self.geometryBase = WinGeometry(390, 435, 100, 100)
-        else:
-            # Windows or other
-            self.geometryBase = WinGeometry(300, 335, 100, 100)
-        self.geometry(str(self.geometryBase))
+        self.defGeometry = MAIN_WIN_DEF_GEOM
+        self.geometry(str(self.defGeometry))
         self.resizable(False, False)
         self.configure(bg=FR_BG)
 

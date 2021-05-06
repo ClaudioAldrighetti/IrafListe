@@ -2,13 +2,25 @@
 from sys import platform
 import tkinter as tk
 
-from utility import SpecInfo
+from utility import SpecInfo, WinGeometry
 
 # Spectrographs list with data (name, min_h_pixel, max_h_pixel, h_image, l_row)
 SPEC_INFO = [
     SpecInfo("Alpy + ASI294", 10, 280, 281, 270),
     SpecInfo("LHIRESS + ATIK460ex", 10, 280, 281, 270)
 ]
+
+# Windows size and offset
+if platform == "linux":
+    # Linux distribution configuration
+    MAIN_WIN_DEF_GEOM = WinGeometry(390, 435, 100, 100)
+    MASTER_WIN_DEF_GEOM = WinGeometry(270, 65, 420, 370)
+    STAR_WIN_DEF_GEOM = WinGeometry(510, 90, 420, 100)
+else:
+    # Windows or other
+    MAIN_WIN_DEF_GEOM = WinGeometry(300, 335, 100, 100)
+    MASTER_WIN_DEF_GEOM = WinGeometry(160, 60, 420, 370)
+    STAR_WIN_DEF_GEOM = WinGeometry(390, 85, 420, 100)
 
 # Star List Window Entry height for win resizing
 if platform == "linux":
@@ -19,6 +31,9 @@ MASTERL_EN_HG = STARL_EN_HG
 
 # General
 GEN_FG = "#dadada"
+
+# Menu bar style
+MN_BG = "#555555"
 
 # Frames style
 FR_BG = "#505050"

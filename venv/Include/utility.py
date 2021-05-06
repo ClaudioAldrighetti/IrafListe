@@ -12,9 +12,9 @@ def is_standard(this_name):
 
 
 def resized_window(this_window, num_record, record_dim):
-    base_height = this_window.geometryBase.height
+    base_height = this_window.defGeometry.height
     new_height = base_height + record_dim * num_record
-    base_width = this_window.geometryBase.width
+    base_width = this_window.defGeometry.width
     this_window.geometry(str(base_width) + "x" + str(new_height))
     return this_window
 

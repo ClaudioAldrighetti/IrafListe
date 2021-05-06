@@ -15,11 +15,8 @@ class StarListWindow(tk.Toplevel):
         super().__init__(master=master)
         self.title("Star List")
 
-        if platform == "linux":
-            self.geometryBase = WinGeometry(510, 90, 420, 100)
-        else:
-            self.geometryBase = WinGeometry(390, 85, 420, 100)
-        self.geometry(str(self.geometryBase))
+        self.defGeometry = STAR_WIN_DEF_GEOM
+        self.geometry(str(self.defGeometry))
         self.resizable(False, False)
         self.configure(bg=FR_BG)
 
