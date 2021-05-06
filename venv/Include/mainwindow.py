@@ -152,18 +152,23 @@ class MainWindow(tk.Tk):
             print("Error: insert a star name!")
             self.starEntry.configure(bg=COL_ERR)
             return
-        self.starEntry.configure(bg=EN_BG)
-
-        self.listDim += 1
-
-        if self.starListWindow is None:
+        elif self.starListWindow is None:
             # Open star list window
             print("Opening star list window...")
             self.starListWindow = StarListWindow()
             self.refButton.configure(state=tk.NORMAL)
             self.refLabel.configure(state=tk.NORMAL)
             self.refEntry.configure(state=tk.NORMAL)
+        else:
+            for i in range(0, self.listDim):
+                i_star = self.starListWindow.starEntries[i].get()
+                if star_name == i_star:
+                    print("Error: star is already in the list!")
+                    self.starEntry.configure(bg=COL_ERR)
+                    return
+        self.starEntry.configure(bg=EN_BG)
 
+        self.listDim += 1
         list_dim = self.listDim
         list_frame = self.starListWindow.listFrame
 
@@ -320,14 +325,22 @@ class MainWindow(tk.Tk):
 
             if not master_time:
                 print("Error: insert dark time!")
-                time_entry.configure(bg=COL_ERR)
                 err_flag = True
             else:
                 master_time = int(master_time)
                 if master_time <= 0:
                     print("Error: dark time must be positive!")
-                    time_entry.configure(bg=COL_ERR)
                     err_flag = True
+                elif not (self.masterListWindow is None):
+                    for i in range(0, self.masterListDim):
+                        if self.masterListWindow.typeEntries[i].get() == BIAS:
+                            continue
+
+                        i_time = int(self.masterListWindow.timeEntries[i].get())
+                        if master_time == i_time:
+                            print("Error: master dark with such pose time already exists!")
+                            err_flag = True
+                            break
                 else:
                     # Dark time value is legal
                     time_entry.configure(bg=EN_BG)
@@ -337,19 +350,20 @@ class MainWindow(tk.Tk):
 
         if not master_poses:
             print("Error: insert poses number!")
-            poses_entry.configure(bg=COL_ERR)
             err_flag = True
         else:
             master_poses = int(master_poses)
             if master_poses <= 0:
                 print("Error: poses number must be positive!")
-                poses_entry.configure(bg=COL_ERR)
                 err_flag = True
             else:
                 # Poses number is legal
                 poses_entry.configure(bg=EN_BG)
 
         if err_flag:
+            poses_entry.configure(bg=COL_ERR)
+            if master_type == DARK:
+                time_entry.configure(bg=COL_ERR)
             return
 
         if bias_flag:

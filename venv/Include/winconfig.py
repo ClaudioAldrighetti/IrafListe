@@ -1,4 +1,4 @@
-# Windows configuration
+# Windows configuration, widgets layout and spectrographs data
 from sys import platform
 import tkinter as tk
 
