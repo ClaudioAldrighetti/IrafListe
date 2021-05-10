@@ -1,6 +1,4 @@
-# import tkinter as tk
-# import tkinter.ttk as ttk
-# import tkinter
+import tkinter as tk
 
 import makefiles as mf
 import maketk as mtk

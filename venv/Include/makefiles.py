@@ -4,7 +4,7 @@ from operator import attrgetter
 
 from utility import *
 
-# STAR SESSION
+# STAR LIST FILES
 
 
 def make_Pulizia0(ws_path):
@@ -537,7 +537,7 @@ def make_ListaInizio(ws_path, dark_flag):
     return
 
 
-# GEN MASTER
+# MASTER DARK AND BIAS FILES
 
 
 def make_DARK(ws_path, master_list, list_dim):

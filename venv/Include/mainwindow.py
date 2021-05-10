@@ -1,14 +1,12 @@
-# import tkinter as tk
-# import tkinter
+import tkinter as tk
 from tkinter import filedialog as fd
-# import tkinter.ttk as ttk
 
 from starwindow import StarListWindow
 from masterwindow import MasterListWindow
-# import makefiles as mf
 import maketk as mtk
-from utility import *
 from winconfig import *
+from utility import *
+from spectrographs import SPEC_INFO
 
 
 # Main window class
@@ -59,8 +57,8 @@ class MainWindow(tk.Tk):
         self.specLabel = mtk.make_Label(self.settingFrame, text="Spectrograph:", row=4, column=1, state=tk.DISABLED)
 
         self.specVal = tk.StringVar(self)
-        spec_list = (specInfo.name for specInfo in SPEC_INFO)
-        self.specOptions = mtk.make_OptionMenu(self.settingFrame, self.specVal, spec_list,
+        spec_name_list = (specInfo.name for specInfo in SPEC_INFO)
+        self.specOptions = mtk.make_OptionMenu(self.settingFrame, self.specVal, spec_name_list,
                                                defaultval=SPEC_INFO[0].name, row=4, column=2, state=tk.DISABLED)
 
         # Synthesis Button

@@ -1,6 +1,11 @@
 # Utility macros, functions and classes
+from os import chdir, path, getcwd
+
 DARK = "dark"
 BIAS = "bias"
+
+chdir(path.dirname(__file__))
+CURR_DIR = str(getcwd())
 
 
 def rm_spaces(this_str):

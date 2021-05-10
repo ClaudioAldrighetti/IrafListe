@@ -1,12 +1,11 @@
-# import tkinter as tk
-# from tkinter import filedialog as fd
-# import tkinter.ttk as ttk
+import tkinter as tk
 import os
 
 import makefiles as mf
 import maketk as mtk
 from utility import *
 from winconfig import *
+from spectrographs import SPEC_INFO
 
 
 # Star list window class
