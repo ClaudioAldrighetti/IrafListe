@@ -7,15 +7,17 @@ from utility import WinGeometry
 # Windows size and offset
 if platform == "linux":
     # Linux distribution configuration
-    MAIN_WIN_DEF_GEOM = WinGeometry(390, 435, 100, 100)     # Main Window configuration
+    MAIN_WIN_DEF_GEOM = WinGeometry(390, 470, 100, 100)     # Main Window configuration
     MASTER_WIN_DEF_GEOM = WinGeometry(270, 65, 420, 370)    # Master List Window configuration
     STAR_WIN_DEF_GEOM = WinGeometry(510, 90, 420, 100)      # Star List Window configuration
+    SPEC_WIN_DEF_GEOM = WinGeometry(275, 270, 420, 250)     # Spectrographs Setting Window configuration
     STARL_EN_HG = 34                                        # (Star) List Entry
 else:
     # Windows or other
-    MAIN_WIN_DEF_GEOM = WinGeometry(300, 335, 100, 100)
+    MAIN_WIN_DEF_GEOM = WinGeometry(300, 370, 100, 100)
     MASTER_WIN_DEF_GEOM = WinGeometry(160, 60, 420, 370)
     STAR_WIN_DEF_GEOM = WinGeometry(390, 85, 420, 100)
+    SPEC_WIN_DEF_GEOM = WinGeometry(175, 170, 420, 250)
     STARL_EN_HG = 30
 MASTERL_EN_HG = STARL_EN_HG                                 # (Master) List Entry
 

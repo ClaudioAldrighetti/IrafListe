@@ -1,12 +1,13 @@
 import tkinter as tk
 from tkinter import filedialog as fd
+from tkinter import messagebox
 
 from starwindow import StarListWindow
 from masterwindow import MasterListWindow
 import maketk as mtk
 from winconfig import *
-from utility import *
-from spectrographs import SPEC_INFO
+from utility import BIAS, DARK, rm_spaces, is_standard, resized_window
+from spectrographs import SPEC_INFO, ADD, MOD, DEL, get_spec_info, SpecWindow
 
 
 # Main window class
@@ -61,9 +62,18 @@ class MainWindow(tk.Tk):
         self.specOptions = mtk.make_OptionMenu(self.settingFrame, self.specVal, spec_name_list,
                                                defaultval=SPEC_INFO[0].name, row=4, column=2, state=tk.DISABLED)
 
+        self.addSpecButton = mtk.make_Button(self.settingFrame, command=lambda mode=ADD: self.mod_spec(mode),
+                                             text="Add New SPEC", row=5, padx=2, state=tk.DISABLED)
+        self.modSpecButton = mtk.make_Button(self.settingFrame, command=lambda mode=MOD: self.mod_spec(mode),
+                                             text="Modify SPEC", column=1, row=5, padx=2, state=tk.DISABLED)
+        self.delSpecButton = mtk.make_Button(self.settingFrame, self.del_spec,
+                                             text="Delete SPEC", column=2, row=5, padx=2, state=tk.DISABLED)
+
+        self.specWindow = None
+
         # Synthesis Button
-        self.synButton = mtk.make_Button(self, self.gen_syn,
-                                         text="Generate Synthesis", state=tk.DISABLED, grid_flag=False, fill="x")
+        self.synButton = mtk.make_Button(self, self.gen_syn, text="Generate Synthesis",
+                                         state=tk.DISABLED, grid_flag=False, fill="x", padx=5)
         self.synWindow = None
         self.sepSynMaster = mtk.make_Separator(self)
 
@@ -72,7 +82,7 @@ class MainWindow(tk.Tk):
         self.masterFrame.pack()
 
         # Master dark interface
-        self.darkButton = mtk.make_Button(self.masterFrame, command=lambda: self.add_master(DARK),
+        self.darkButton = mtk.make_Button(self.masterFrame, command=lambda spec_type=DARK: self.add_master(spec_type),
                                           text="Add Master Dark", state=tk.DISABLED)
         self.darkPosesLabel = mtk.make_Label(self.masterFrame, text="Dark poses:", column=1, state=tk.DISABLED)
         self.darkPosesEntry = mtk.make_Entry(self.masterFrame, column=2, state=tk.DISABLED)
@@ -85,7 +95,7 @@ class MainWindow(tk.Tk):
         self.masterFlag = False
 
         # Master bias interface
-        self.biasButton = mtk.make_Button(self.masterFrame, command=lambda: self.add_master(BIAS),
+        self.biasButton = mtk.make_Button(self.masterFrame, command=lambda spec_type=BIAS: self.add_master(spec_type),
                                           text="Insert Master Bias", row=2, state=tk.DISABLED)
         self.biasPosesLabel = mtk.make_Label(self.masterFrame, text="Bias poses:", row=2, column=1, state=tk.DISABLED)
         self.biasPosesEntry = mtk.make_Entry(self.masterFrame, row=2, column=2, state=tk.DISABLED)
@@ -106,6 +116,8 @@ class MainWindow(tk.Tk):
         self.closeButton = mtk.make_Button(self.closeFrame, self.destroy,
                                            text="Close", pady=5, grid_flag=False, fill=tk.X, expand=True)
 
+        return
+
     # Workspace selection
     def select_ws_path(self):
         print("SELECT WS PATH")
@@ -125,8 +137,12 @@ class MainWindow(tk.Tk):
         self.starEntry.configure(state=tk.NORMAL)
         self.starLabel.configure(state=tk.NORMAL)
         self.starButton.configure(state=tk.NORMAL)
+
         self.specLabel.configure(state=tk.NORMAL)
         self.specOptions.configure(state=tk.NORMAL)
+        self.addSpecButton.configure(state=tk.NORMAL)
+        self.modSpecButton.configure(state=tk.NORMAL)
+        self.delSpecButton.configure(state=tk.NORMAL)
 
         self.darkButton.configure(state=tk.NORMAL)
         self.darkPosesLabel.configure(state=tk.NORMAL)
@@ -172,6 +188,10 @@ class MainWindow(tk.Tk):
 
         # Add new record on the star list window
         print("Adding a new record on the star list window...")
+        new_remove_button = mtk.make_Button(list_frame, text="-", row=list_dim, pady=1,
+                                            command=lambda to_remove=list_dim: self.remove_star(to_remove))
+        self.starListWindow.removeButtons.append(new_remove_button)
+
         new_star_entry = mtk.make_Entry(list_frame, text=star_name,
                                         row=list_dim, column=1, padx=2, width=20, sticky=tk.EW, state="readonly")
         self.starListWindow.starEntries.append(new_star_entry)
@@ -193,10 +213,6 @@ class MainWindow(tk.Tk):
             new_standard_entry.configure(state=tk.DISABLED)
         self.starListWindow.standardEntries.append(new_standard_entry)
 
-        new_remove_button = mtk.make_Button(list_frame, text="-", row=list_dim, pady=1,
-                                            command=lambda to_remove=list_dim: self.remove_star(to_remove))
-        self.starListWindow.removeButtons.append(new_remove_button)
-
         # Resize star list window
         self.starListWindow = resized_window(self.starListWindow, self.listDim, STARL_EN_HG)
 
@@ -213,6 +229,7 @@ class MainWindow(tk.Tk):
         # Check if the star to remove is the reference star
         if is_standard(name_to_remove) and self.curRefEntry.get() == name_to_remove:
             print("Removing reference information...")
+            self.curRefLabel.configure(state=tk.DISABLED)
             mtk.clear_Entry(self.curRefEntry)
             self.starListWindow.refLabel.configure(state=tk.DISABLED)
             mtk.clear_Entry(self.starListWindow.refEntry)
@@ -230,6 +247,10 @@ class MainWindow(tk.Tk):
         self.listDim -= 1
 
         if self.listDim == 0:
+            self.refButton.configure(state=tk.DISABLED)
+            self.refLabel.configure(state=tk.DISABLED)
+            self.refEntry.configure(state=tk.DISABLED)
+
             print("Closing star list window...")
             self.starListWindow.destroy()
             self.starListWindow = None
@@ -295,6 +316,59 @@ class MainWindow(tk.Tk):
 
         print("Error: illegal reference star name!")
         self.refEntry.configure(bg=COL_ERR)
+        return
+
+    def mod_spec(self, mode):
+        if mode == MOD:
+            # Modify an existent spectrograph
+            print("MOD SPEC")
+        elif mode == ADD:
+            # Add a new spectrograph to the list
+            print("ADD SPEC")
+        else:
+            print("Error: invalid mode!")
+            return
+
+        self.specLabel.configure(state=tk.DISABLED)
+        self.specOptions.configure(state=tk.DISABLED)
+        self.addSpecButton.configure(state=tk.DISABLED)
+        self.modSpecButton.configure(state=tk.DISABLED)
+        self.delSpecButton.configure(state=tk.DISABLED)
+
+        print("Opening spectrograph window...")
+        spec_info = None
+        if mode == MOD:
+            spec_info = get_spec_info(self.specVal.get())
+        self.specWindow = SpecWindow(self, mode, spec_info)
+        return
+
+    def del_spec(self):
+        print("DEL SPEC")
+
+        spec_name = self.specVal.get()
+        message = "The selected spectrograph (" + spec_name + ") will be removed, are you sure?"
+        if not messagebox.askokcancel("Delete Spectrograph", message):
+            print("Spectrograph hasn't been deleted")
+            return
+
+        print("Opening spectrograph window...")
+        spec_to_delete = get_spec_info(spec_name)
+        self.specWindow = SpecWindow(self, DEL, spec_to_delete)
+        return
+
+    def update_spec(self, curr_spec=None):
+        print("UPDATE SPEC")
+        from spectrographs import SPEC_INFO
+
+        if not (curr_spec is None):
+            self.specVal.set(curr_spec)
+
+        self.specOptions["menu"].delete(0, "end")
+        spec_name_list = (spec_info.name for spec_info in SPEC_INFO)
+        for spec_name in spec_name_list:
+            self.specOptions["menu"].add_command(label=spec_name, command=lambda name=spec_name: self.specVal.set(name))
+
+        print("Spec options menu updated successfully")
         return
 
     def gen_syn(self):
@@ -381,6 +455,10 @@ class MainWindow(tk.Tk):
         list_frame = self.masterListWindow.listFrame
 
         print("Adding the master to the list...")
+        new_remove_button = mtk.make_Button(list_frame, text="-", row=list_dim, pady=1,
+                                            command=lambda to_remove=list_dim: self.remove_master(to_remove))
+        self.masterListWindow.removeButtons.append(new_remove_button)
+
         new_type_entry = mtk.make_Entry(list_frame, text=master_type,
                                         row=list_dim, column=1, padx=2, width=6, sticky=tk.EW, state="readonly")
         self.masterListWindow.typeEntries.append(new_type_entry)
@@ -396,10 +474,6 @@ class MainWindow(tk.Tk):
             new_time_entry.insert(0, master_time)
             new_time_entry.configure(state="readonly")
         self.masterListWindow.timeEntries.append(new_time_entry)
-
-        new_remove_button = mtk.make_Button(list_frame, text="-", row=list_dim, pady=1,
-                                            command=lambda: self.remove_master(list_dim))
-        self.masterListWindow.removeButtons.append(new_remove_button)
 
         # Resize master list window
         self.masterListWindow = resized_window(self.masterListWindow, list_dim, MASTERL_EN_HG)
@@ -437,7 +511,8 @@ class MainWindow(tk.Tk):
         list_dim = self.masterListDim
         for i in range(index_to_remove, list_dim):
             new_record = self.masterListWindow.typeEntries[i].grid_info().get("row")-1
-            self.masterListWindow.removeButtons[i].configure(command=lambda: self.remove_master(new_record))
+            self.masterListWindow.removeButtons[i].configure(
+                command=lambda to_remove=new_record: self.remove_master(to_remove))
             self.masterListWindow.removeButtons[i].grid(row=new_record)
             self.masterListWindow.typeEntries[i].grid(row=new_record)
             self.masterListWindow.posesEntries[i].grid(row=new_record)
@@ -492,6 +567,9 @@ class MainWindow(tk.Tk):
 
         self.specLabel.configure(state=tk.DISABLED)
         self.specOptions.configure(state=tk.DISABLED)
+        self.addSpecButton.configure(state=tk.DISABLED)
+        self.modSpecButton.configure(state=tk.DISABLED)
+        self.delSpecButton.configure(state=tk.DISABLED)
 
         self.synButton.configure(state=tk.DISABLED)
 
@@ -523,6 +601,8 @@ class SynthesisWindow(tk.Toplevel):
         self.synText = tk.Text(self.synFrame, state=tk.NORMAL, bg=EN_BG, fg=GEN_FG, relief=tk.FLAT)
         self.synText.pack(expand=True, fill=tk.BOTH)
         self.syn()
+
+        return
 
     # Synthesis report
     def syn(self):

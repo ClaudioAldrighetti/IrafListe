@@ -3,9 +3,9 @@ import os
 
 import makefiles as mf
 import maketk as mtk
-from utility import *
+from utility import rm_spaces, is_standard, StarInfo
 from winconfig import *
-from spectrographs import SPEC_INFO
+from spectrographs import get_spec_info
 
 
 # Star list window class
@@ -50,6 +50,8 @@ class StarListWindow(tk.Toplevel):
 
         # Start button
         self.startButton = mtk.make_Button(self, self.start_session, text="Start Session", row=2, pady=2)
+
+        return
 
     # Create general IRAF files
     def start_session(self):
@@ -160,12 +162,7 @@ class StarListWindow(tk.Toplevel):
             self.master.starList.append(star_info)
 
         # Retrieve spectrograph data
-        spec_name = self.master.specVal.get()
-        spec_info = None
-        for specInfo in SPEC_INFO:
-            if specInfo.name == spec_name:
-                spec_info = specInfo
-                break
+        spec_info = get_spec_info(self.master.specVal.get())
         if spec_info is None:
             # Quite impossible error, it's just for the sake of security...
             print("Error: invalid spectrograph!")
@@ -229,6 +226,9 @@ class StarListWindow(tk.Toplevel):
 
         self.master.specLabel.configure(state=tk.DISABLED)
         self.master.specOptions.configure(state=tk.DISABLED)
+        self.master.addSpecButton.configure(state=tk.DISABLED)
+        self.master.modSpecButton.configure(state=tk.DISABLED)
+        self.master.delSpecButton.configure(state=tk.DISABLED)
 
         # Close star list window
         print("Closing star list window...")

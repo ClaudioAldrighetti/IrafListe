@@ -43,6 +43,13 @@ class SpecInfo:
         self.h_image = h_image
         self.l_row = l_row
 
+    def to_csv(self):
+        return (self.name + "," +
+                str(self.min_h_pixel) + "," +
+                str(self.max_h_pixel) + "," +
+                str(self.h_image) + "," +
+                str(self.l_row))
+
 
 class MasterInfo:
     def __init__(self, master_type, master_poses, master_time):

@@ -34,6 +34,8 @@ class MasterListWindow(tk.Toplevel):
         self.genButton = mtk.make_Button(self, self.gen_master,
                                          text="Generate Master", pady=2, grid_flag=False, fill="x")
 
+        return
+
     # Create master dark and bias files
     def gen_master(self):
         print("GEN MASTER")
