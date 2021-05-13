@@ -4,13 +4,14 @@ import os.path as opt
 import tkinter as tk
 
 import maketk as mtk
-from utility import rm_spaces, CURR_DIR, SpecInfo
+from utility import rm_spaces, str_is_positive_int, CURR_DIR, SpecInfo
 from winconfig import *
 
 # SpecWindow modes
 ADD = "add"
 MOD = "mod"
 DEL = "del"
+
 
 # Retrieve spectrographs list and data from the corresponding csv file
 def retrieve_spectrographs():
@@ -105,8 +106,33 @@ class SpecWindow(tk.Toplevel):
 
         return
 
+    def check_info(self):
+        check_flag = True
+        print("Checking inserted spectrograph data...")
+        if not str_is_positive_int(rm_spaces(self.minHEntry.get())):
+            print("Error: invalid minimum pixel height!")
+            self.minHEntry.configure(bg=COL_ERR)
+            check_flag = False
+        if not str_is_positive_int(rm_spaces(self.maxHEntry.get())):
+            print("Error: invalid maximum pixel height!")
+            self.maxHEntry.configure(bg=COL_ERR)
+            check_flag = False
+        if not str_is_positive_int(rm_spaces(self.imageHEntry.get())):
+            print("Error: invalid image height!")
+            self.imageHEntry.configure(bg=COL_ERR)
+            check_flag = False
+        if not str_is_positive_int(rm_spaces(self.rowEntry.get())):
+            print("Error: invalid maximum file length!")
+            self.rowEntry.configure(bg=COL_ERR)
+            check_flag = False
+        return check_flag
+
     def add_spec(self):
         print("ADD SPEC")
+
+        # Check spec data
+        if not self.check_info():
+            return
 
         # Retrieve spectrograph data from entries
         spec_info = SpecInfo(self.nameEntry.get(),
@@ -131,6 +157,10 @@ class SpecWindow(tk.Toplevel):
 
     def mod_spec(self):
         print("MOD SPEC")
+
+        # Check spec data
+        if not self.check_info():
+            return
 
         # Retrieve spectrograph data from entries
         spec_info = SpecInfo(self.nameEntry.get(),
@@ -196,8 +226,6 @@ class SpecWindow(tk.Toplevel):
         return
 
     def close(self):
-        print("CLOSE")
-
         self.master.specLabel.configure(state=tk.NORMAL)
         self.master.specOptions.configure(state=tk.NORMAL)
         self.master.addSpecButton.configure(state=tk.NORMAL)

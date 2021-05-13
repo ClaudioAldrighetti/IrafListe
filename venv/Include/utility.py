@@ -16,6 +16,12 @@ def is_standard(this_name):
     return this_name[:2].upper() == "HR"
 
 
+def str_is_positive_int(this_string):
+    if (not this_string) or (not this_string.isdigit()) or (int(this_string) == 0):
+        return False
+    return True
+
+
 def resized_window(this_window, num_record, record_dim):
     base_height = this_window.defGeometry.height
     new_height = base_height + record_dim * num_record
@@ -59,9 +65,9 @@ class MasterInfo:
 
 
 class StarInfo:
-    def __init__(self, name, pose, flat, neon, dark_time, standard, std_pose):
+    def __init__(self, name, poses, flat, neon, dark_time, standard, std_pose):
         self.name = name
-        self.pose = pose
+        self.poses = poses
         self.flat = flat
         self.neon = neon
         self.dark_time = dark_time

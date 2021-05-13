@@ -34,7 +34,7 @@ def make_CreaDarkati(ws_path, star_list, list_dim):
         for i in range(0, list_dim):
             star_info = star_list[i]
 
-            for pose in range(1, star_info.pose + 1):
+            for pose in range(1, star_info.poses + 1):
                 new_file.write(
                     "imarith " + star_info.name + "-" + str(pose) + "_b.fit - "
                     "master_dark_" + str(star_info.dark_time) + ".fit "
@@ -64,7 +64,7 @@ def make_ListaGenerale(ws_path, star_list, list_dim):
     for i in range(0, list_dim):
         star_info = star_list[i]
 
-        for i_pose in range(1, star_info.pose + 1):
+        for i_pose in range(1, star_info.poses + 1):
             new_file.write(star_info.name + "-" + str(i_pose) + ".fit\n")
 
         for i_flat in range(1, star_info.flat + 1):
@@ -85,7 +85,7 @@ def make_ListaBiassati(ws_path, star_list, list_dim):
     for i in range(0, list_dim):
         star_info = star_list[i]
 
-        for i_pose in range(1, star_info.pose + 1):
+        for i_pose in range(1, star_info.poses + 1):
             new_file.write(star_info.name + "-" + str(i_pose) + "_b.fit\n")
 
         for i_flat in range(1, star_info.flat + 1):
@@ -173,7 +173,7 @@ def make_ListaFlattati(ws_path, star_list, list_dim):
         for i in range(0, list_dim):
             star_info = star_list[i]
 
-            for i_pose in range(1, star_info.pose + 1):
+            for i_pose in range(1, star_info.poses + 1):
                 new_file.write(
                     "imarith " + star_info.name + "-" + str(i_pose) + "_bd.fit / "
                     "master_flat_" + star_info.name + ".fit " +
@@ -197,7 +197,7 @@ def make_ListaTracciamoStelle(ws_path, star_list, list_dim):
         for i in range(0, list_dim):
             star_info = star_list[i]
 
-            for i_pose in range(1, star_info.pose + 1):
+            for i_pose in range(1, star_info.poses + 1):
                 new_file.write("apall " + star_info.name + "-" + str(i_pose) + "_f.fit\n")
 
     new_file.close()
@@ -262,7 +262,7 @@ def make_ListaApallNe(ws_path, star_list, list_dim):
         for i in range(0, list_dim):
             star_info = star_list[i]
 
-            for i_pose in range(1, star_info.pose + 1):
+            for i_pose in range(1, star_info.poses + 1):
                 new_file.write(
                     "apall master_neon_" + star_info.name + ".fit "
                     "output=" + star_info.name + "-" + str(i_pose) + "_Ne.fit "
@@ -281,7 +281,7 @@ def make_ListaReidentify(ws_path, star_list, list_dim, ref_name, ref_pose):
         for i in range(0, list_dim):
             star_info = star_list[i]
 
-            for i_pose in range(1, star_info.pose + 1):
+            for i_pose in range(1, star_info.poses + 1):
                 if (star_info.name != ref_name) or (i_pose != ref_pose):
                     new_file.write(
                         "reidentify images=" + star_info.name + "-" + str(i_pose) + "_Ne.0001.fits "
@@ -299,7 +299,7 @@ def make_ListaChiConChi(ws_path, star_list, list_dim):
         for i in range(0, list_dim):
             star_info = star_list[i]
 
-            for i_pose in range(1, star_info.pose + 1):
+            for i_pose in range(1, star_info.poses + 1):
                 new_file.write(
                     "hedit " + star_info.name + "-" + str(i_pose) + "_f.ms.fits "
                     "refspec1 " + star_info.name + "-" + str(i_pose) + "_Ne.0001 add+ ver-\n")
@@ -316,7 +316,7 @@ def make_ListaCalibraLambda(ws_path, star_list, list_dim):
         for i in range(0, list_dim):
             star_info = star_list[i]
 
-            for i_pose in range(1, star_info.pose + 1):
+            for i_pose in range(1, star_info.poses + 1):
                 new_file.write(
                     "dispcor " + star_info.name + "-" + str(i_pose) + "_f.ms.fits " +
                     star_info.name + "-" + str(i_pose) + "_fw.fits linearize=no\n")
@@ -337,7 +337,7 @@ def make_STANDARD(ws_path, star_list, list_dim):
         with open(file_path, "w") as new_file:
             star_n = star_info.name[2:]
 
-            for i_pose in range(1, star_info.pose + 1):
+            for i_pose in range(1, star_info.poses + 1):
                 new_file.write(
                     "standard " + star_info.name + "-" + str(i_pose) + "_fw.fits "
                     "star_nam=hr_" + star_n + "\n")
@@ -357,7 +357,7 @@ def make_DaFlussare(ws_path, star_list, list_dim):
         file_path = opt.join(ws_path, file_name)
         with open(file_path, "w") as new_file:
 
-            for i_pose in range(1, star_info.pose + 1):
+            for i_pose in range(1, star_info.poses + 1):
                 new_file.write(star_info.name + "-" + str(i_pose) + "_fw.fits\n")
 
             for i_pose in range(1, star_info.std_pose + 1):
@@ -378,7 +378,7 @@ def make_Flussati(ws_path, star_list, list_dim):
         file_path = opt.join(ws_path, file_name)
         with open(file_path, "w") as new_file:
 
-            for i_pose in range(1, star_info.pose + 1):
+            for i_pose in range(1, star_info.poses + 1):
                 new_file.write(star_info.name + "-" + str(i_pose) + "_fwx.fits\n")
 
             for i_pose in range(1, star_info.std_pose + 1):
@@ -399,7 +399,7 @@ def make_HelioRename(ws_path, star_list, list_dim):
         file_path = opt.join(ws_path, file_name)
         with open(file_path, "w") as new_file:
 
-            for i_pose in range(1, star_info.pose + 1):
+            for i_pose in range(1, star_info.poses + 1):
                 new_file.write(
                     "cp " + star_info.name + "-" + str(i_pose) + "_fwx.fits " +
                     star_info.name + "-" + str(i_pose) + "_hv.fits\n")
@@ -424,7 +424,7 @@ def make_RvCorrected(ws_path, star_list, list_dim):
         file_path = opt.join(ws_path, file_name)
         with open(file_path, "w") as new_file:
 
-            for i_pose in range(1, star_info.pose + 1):
+            for i_pose in range(1, star_info.poses + 1):
                 new_file.write(star_info.name + "-" + str(i_pose) + "_hv.fits\n")
 
             for i_pose in range(1, star_info.std_pose + 1):
@@ -466,7 +466,7 @@ def make_Mediana(ws_path, star_list, list_dim):
         file_path = opt.join(ws_path, file_name)
         with open(file_path, "w") as new_file:
 
-            for i_pose in range(1, star_info.pose + 1):
+            for i_pose in range(1, star_info.poses + 1):
                 new_file.write(star_info.name + "-" + str(i_pose) + "_hv.fits\n")
 
         new_file.close()

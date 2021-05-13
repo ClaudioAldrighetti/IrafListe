@@ -3,7 +3,7 @@ import os
 
 import makefiles as mf
 import maketk as mtk
-from utility import rm_spaces, is_standard, StarInfo
+from utility import rm_spaces, is_standard, str_is_positive_int, StarInfo
 from winconfig import *
 from spectrographs import get_spec_info
 
@@ -25,14 +25,14 @@ class StarListWindow(tk.Toplevel):
         self.listFrame.grid()
 
         self.starLabel = mtk.make_Label(self.listFrame, text="Star", column=1, pady=2, sticky=tk.EW)
-        self.poseLabel = mtk.make_Label(self.listFrame, text="Poses", column=2, pady=2, sticky=tk.EW)
+        self.posesLabel = mtk.make_Label(self.listFrame, text="Poses", column=2, pady=2, sticky=tk.EW)
         self.flatLabel = mtk.make_Label(self.listFrame, text="Flat", column=3, pady=2, sticky=tk.EW)
         self.neonLabel = mtk.make_Label(self.listFrame, text="Neon", column=4, pady=2, sticky=tk.EW)
         self.darkLabel = mtk.make_Label(self.listFrame, text="Dark T", column=5, pady=2, sticky=tk.EW)
         self.standardLabel = mtk.make_Label(self.listFrame, text="Standard", column=6, pady=2, sticky=tk.EW)
 
         self.starEntries = []
-        self.poseEntries = []
+        self.posesEntries = []
         self.flatEntries = []
         self.neonEntries = []
         self.darkEntries = []
@@ -59,25 +59,25 @@ class StarListWindow(tk.Toplevel):
 
         err_flag = False
 
-        ref_pose_str = rm_spaces(self.refPoseEntry.get())
         master_flag = self.master.masterFlag
         self.master.starList = []
 
         print("Checking environment...")
         # Check workspace directory
-        if not os.path.exists(self.master.wsPath):
+        ws_path = self.master.wsPath
+        if not os.path.exists(ws_path):
             print("Error: workspace directory doesn't exist!")
             err_flag = True
-        ws_path = self.master.wsPath
 
         # Check star list length
-        if self.master.listDim == 0:
+        list_dim = self.master.starListDim
+        if list_dim == 0:
             print("Error: star list is empty!")
             err_flag = True
-        list_dim = self.master.listDim
 
         # Check reference pose
-        if not ref_pose_str or int(ref_pose_str) <= 0:
+        ref_pose_str = rm_spaces(self.refPoseEntry.get())
+        if not str_is_positive_int(ref_pose_str):
             print("Error: illegal reference pose value!")
             self.refPoseEntry.configure(bg=COL_ERR)
             self.master.refPose = None
@@ -90,24 +90,24 @@ class StarListWindow(tk.Toplevel):
         print("Checking star list information...")
         for i in range(0, list_dim):
             star_entry = self.starEntries[i].get()
-            pose_entry_str = rm_spaces(self.poseEntries[i].get())
+            poses_entry_str = rm_spaces(self.posesEntries[i].get())
             flat_entry_str = rm_spaces(self.flatEntries[i].get())
             neon_entry_str = rm_spaces(self.neonEntries[i].get())
             dark_entry_str = rm_spaces(self.darkEntries[i].get())
             standard_entry = rm_spaces(self.standardEntries[i].get())
-            std_pose = None
+            std_poses = None
             std_flag = False
 
-            if not pose_entry_str or int(pose_entry_str) <= 0:
-                print("Error: illegal pose value for star: " + star_entry + "!")
-                self.poseEntries[i].configure(bg=COL_ERR)
-                star_pose = None
+            if not str_is_positive_int(poses_entry_str):
+                print("Error: illegal poses value for star: " + star_entry + "!")
+                self.posesEntries[i].configure(bg=COL_ERR)
+                star_poses = None
                 err_flag = True
             else:
-                self.poseEntries[i].configure(bg=EN_BG)
-                star_pose = int(pose_entry_str)
+                self.posesEntries[i].configure(bg=EN_BG)
+                star_poses = int(poses_entry_str)
 
-            if not flat_entry_str or int(flat_entry_str) <= 0:
+            if not str_is_positive_int(flat_entry_str):
                 print("Error: illegal flat value for star: " + star_entry + "!")
                 self.flatEntries[i].configure(bg=COL_ERR)
                 star_flat = None
@@ -116,7 +116,7 @@ class StarListWindow(tk.Toplevel):
                 self.flatEntries[i].configure(bg=EN_BG)
                 star_flat = int(flat_entry_str)
 
-            if not neon_entry_str or int(neon_entry_str) <= 0:
+            if not str_is_positive_int(neon_entry_str):
                 print("Error: illegal neon value for star: " + star_entry + "!")
                 self.neonEntries[i].configure(bg=COL_ERR)
                 star_neon = None
@@ -125,7 +125,7 @@ class StarListWindow(tk.Toplevel):
                 self.neonEntries[i].configure(bg=EN_BG)
                 star_neon = int(neon_entry_str)
 
-            if not dark_entry_str or int(dark_entry_str) <= 0:
+            if not str_is_positive_int(dark_entry_str):
                 print("Error: illegal dark time value for star: " + star_entry + "!")
                 self.darkEntries[i].configure(bg=COL_ERR)
                 star_dark = None
@@ -144,9 +144,18 @@ class StarListWindow(tk.Toplevel):
                     for j in range(0, list_dim):
                         if standard_entry != self.starEntries[j].get():
                             continue
-                        self.standardEntries[i].configure(bg=EN_BG)
-                        std_pose = int(self.poseEntries[j].get())
+
+                        std_poses_entry = rm_spaces(self.posesEntries[j].get())
+                        if not str_is_positive_int(std_poses_entry):
+                            print("Error: illegal poses value for standard: " + standard_entry + "!")
+                            self.posesEntries[j].configure(bg=COL_ERR)
+                            err_flag = True
+                        else:
+                            self.posesEntries[j].configure(bg=EN_BG)
+                            std_poses = int(std_poses_entry)
+
                         std_flag = True
+                        self.standardEntries[i].configure(bg=EN_BG)
                         break
             else:
                 standard_entry = None
@@ -158,7 +167,7 @@ class StarListWindow(tk.Toplevel):
                 standard_entry = None
                 err_flag = True
 
-            star_info = StarInfo(star_entry, star_pose, star_flat, star_neon, star_dark, standard_entry, std_pose)
+            star_info = StarInfo(star_entry, star_poses, star_flat, star_neon, star_dark, standard_entry, std_poses)
             self.master.starList.append(star_info)
 
         # Retrieve spectrograph data
@@ -237,11 +246,9 @@ class StarListWindow(tk.Toplevel):
         return
 
     def close(self):
-        print("CLOSE")
-
         # Delete star list information
         print("Deleting star list information...")
-        self.master.listDim = 0
+        self.master.starListDim = 0
         self.master.refName = None
         self.master.refPose = None
 

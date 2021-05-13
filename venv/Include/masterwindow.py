@@ -1,4 +1,5 @@
 import tkinter as tk
+import os
 
 import makefiles as mf
 import maketk as mtk
@@ -40,22 +41,36 @@ class MasterListWindow(tk.Toplevel):
     def gen_master(self):
         print("GEN MASTER")
 
+        # Check workspace directory
         ws_path = self.master.wsPath
+        if not os.path.exists(ws_path):
+            print("Error: workspace directory doesn't exist!")
+            return
+
         list_dim = self.master.masterListDim
         master_win = self.master.masterListWindow
         master_list = []
+        dark_flag = False
+        bias_flag = False
 
+        print("Retrieving masters data...")
         for i in range(0, list_dim):
             master_type = master_win.typeEntries[i].get()
             master_poses = int(rm_spaces(master_win.posesEntries[i].get()))
             if master_type == DARK:
                 master_time = int(rm_spaces(self.timeEntries[i].get()))
+                master_info = MasterInfo(master_type, master_poses, master_time)
+                dark_flag = True
             else:
                 bias_poses = master_poses
-                master_time = None
-
-            master_info = MasterInfo(master_type, master_poses, master_time)
+                master_info = MasterInfo(master_type, master_poses, None)
+                bias_flag = True
             master_list.append(master_info)
+
+        # There must be both master types
+        if not (dark_flag and bias_flag):
+            print("Error: there must be both master bias and master dark in the master list!")
+            return
 
         print("Creating master files...")
         mf.make_DARK(ws_path, master_list, list_dim)
@@ -80,8 +95,6 @@ class MasterListWindow(tk.Toplevel):
         return
 
     def close(self):
-        print("CLOSE")
-
         # Delete star list information
         print("Deleting master list information...")
         self.master.masterListDim = 0

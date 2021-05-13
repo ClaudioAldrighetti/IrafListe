@@ -6,7 +6,7 @@ from starwindow import StarListWindow
 from masterwindow import MasterListWindow
 import maketk as mtk
 from winconfig import *
-from utility import BIAS, DARK, rm_spaces, is_standard, resized_window
+from utility import BIAS, DARK, rm_spaces, is_standard, str_is_positive_int, resized_window
 from spectrographs import SPEC_INFO, ADD, MOD, DEL, get_spec_info, SpecWindow
 
 
@@ -39,7 +39,7 @@ class MainWindow(tk.Tk):
 
         # Star list
         self.starList = []
-        self.listDim = 0
+        self.starListDim = 0
         self.starListWindow = None
 
         # Reference star interface
@@ -62,9 +62,9 @@ class MainWindow(tk.Tk):
         self.specOptions = mtk.make_OptionMenu(self.settingFrame, self.specVal, spec_name_list,
                                                defaultval=SPEC_INFO[0].name, row=4, column=2, state=tk.DISABLED)
 
-        self.addSpecButton = mtk.make_Button(self.settingFrame, command=lambda mode=ADD: self.mod_spec(mode),
+        self.addSpecButton = mtk.make_Button(self.settingFrame, command=lambda mode=ADD: self.set_spec(mode),
                                              text="Add New SPEC", row=5, padx=2, state=tk.DISABLED)
-        self.modSpecButton = mtk.make_Button(self.settingFrame, command=lambda mode=MOD: self.mod_spec(mode),
+        self.modSpecButton = mtk.make_Button(self.settingFrame, command=lambda mode=MOD: self.set_spec(mode),
                                              text="Modify SPEC", column=1, row=5, padx=2, state=tk.DISABLED)
         self.delSpecButton = mtk.make_Button(self.settingFrame, self.del_spec,
                                              text="Delete SPEC", column=2, row=5, padx=2, state=tk.DISABLED)
@@ -174,7 +174,7 @@ class MainWindow(tk.Tk):
             self.refLabel.configure(state=tk.NORMAL)
             self.refEntry.configure(state=tk.NORMAL)
         else:
-            for i in range(0, self.listDim):
+            for i in range(0, self.starListDim):
                 i_star = self.starListWindow.starEntries[i].get()
                 if star_name == i_star:
                     print("Error: star is already in the list!")
@@ -182,8 +182,8 @@ class MainWindow(tk.Tk):
                     return
         self.starEntry.configure(bg=EN_BG)
 
-        self.listDim += 1
-        list_dim = self.listDim
+        self.starListDim += 1
+        list_dim = self.starListDim
         list_frame = self.starListWindow.listFrame
 
         # Add new record on the star list window
@@ -197,7 +197,7 @@ class MainWindow(tk.Tk):
         self.starListWindow.starEntries.append(new_star_entry)
 
         new_pose_entry = mtk.make_Entry(list_frame, row=list_dim, column=2, width=6, sticky=tk.EW)
-        self.starListWindow.poseEntries.append(new_pose_entry)
+        self.starListWindow.posesEntries.append(new_pose_entry)
 
         new_flat_entry = mtk.make_Entry(list_frame, text=5, row=list_dim, column=3, width=6, sticky=tk.EW)
         self.starListWindow.flatEntries.append(new_flat_entry)
@@ -214,7 +214,7 @@ class MainWindow(tk.Tk):
         self.starListWindow.standardEntries.append(new_standard_entry)
 
         # Resize star list window
-        self.starListWindow = resized_window(self.starListWindow, self.listDim, STARL_EN_HG)
+        self.starListWindow = resized_window(self.starListWindow, self.starListDim, STARL_EN_HG)
 
         print("New star added successfully")
         return
@@ -238,15 +238,15 @@ class MainWindow(tk.Tk):
 
         self.starListWindow.removeButtons.pop(index_to_remove).destroy()
         self.starListWindow.starEntries.pop(index_to_remove).destroy()
-        self.starListWindow.poseEntries.pop(index_to_remove).destroy()
+        self.starListWindow.posesEntries.pop(index_to_remove).destroy()
         self.starListWindow.flatEntries.pop(index_to_remove).destroy()
         self.starListWindow.neonEntries.pop(index_to_remove).destroy()
         self.starListWindow.darkEntries.pop(index_to_remove).destroy()
         self.starListWindow.standardEntries.pop(index_to_remove).destroy()
 
-        self.listDim -= 1
+        self.starListDim -= 1
 
-        if self.listDim == 0:
+        if self.starListDim == 0:
             self.refButton.configure(state=tk.DISABLED)
             self.refLabel.configure(state=tk.DISABLED)
             self.refEntry.configure(state=tk.DISABLED)
@@ -258,20 +258,20 @@ class MainWindow(tk.Tk):
             print("Star removed correctly")
             return
 
-        for i in range(index_to_remove, self.listDim):
+        for i in range(index_to_remove, self.starListDim):
             new_row = self.starListWindow.starEntries[i].grid_info().get("row")-1
             self.starListWindow.removeButtons[i].configure(command=lambda to_remove=new_row:
                                                            self.remove_star(to_remove))
             self.starListWindow.removeButtons[i].grid(row=new_row)
             self.starListWindow.starEntries[i].grid(row=new_row)
-            self.starListWindow.poseEntries[i].grid(row=new_row)
+            self.starListWindow.posesEntries[i].grid(row=new_row)
             self.starListWindow.flatEntries[i].grid(row=new_row)
             self.starListWindow.neonEntries[i].grid(row=new_row)
             self.starListWindow.darkEntries[i].grid(row=new_row)
             self.starListWindow.standardEntries[i].grid(row=new_row)
 
         # Resize star list window
-        self.starListWindow = resized_window(self.starListWindow, self.listDim, STARL_EN_HG)
+        self.starListWindow = resized_window(self.starListWindow, self.starListDim, STARL_EN_HG)
 
         print("Star removed correctly")
         return
@@ -289,7 +289,7 @@ class MainWindow(tk.Tk):
             self.refEntry.configure(bg=COL_ERR)
             return
 
-        for i in range(0, self.listDim):
+        for i in range(0, self.starListDim):
             if ref_name != self.starListWindow.starEntries[i].get():
                 continue
 
@@ -314,18 +314,14 @@ class MainWindow(tk.Tk):
             print("Reference star set successfully")
             return
 
-        print("Error: illegal reference star name!")
+        print("Error: invalid reference star name!")
         self.refEntry.configure(bg=COL_ERR)
         return
 
-    def mod_spec(self, mode):
-        if mode == MOD:
-            # Modify an existent spectrograph
-            print("MOD SPEC")
-        elif mode == ADD:
-            # Add a new spectrograph to the list
-            print("ADD SPEC")
-        else:
+    def set_spec(self, mode):
+        print("SET SPEC")
+
+        if (mode != MOD) and (mode != ADD):
             print("Error: invalid mode!")
             return
 
@@ -346,7 +342,7 @@ class MainWindow(tk.Tk):
         print("DEL SPEC")
 
         spec_name = self.specVal.get()
-        message = "The selected spectrograph (" + spec_name + ") will be removed, are you sure?"
+        message = "The selected spectrograph (" + spec_name + ") will be removed, do you want to proceed?"
         if not messagebox.askokcancel("Delete Spectrograph", message):
             print("Spectrograph hasn't been deleted")
             return
@@ -357,7 +353,6 @@ class MainWindow(tk.Tk):
         return
 
     def update_spec(self, curr_spec=None):
-        print("UPDATE SPEC")
         from spectrographs import SPEC_INFO
 
         if not (curr_spec is None):
@@ -391,19 +386,17 @@ class MainWindow(tk.Tk):
         else:
             print("Checking inserted dark poses and time values...")
             poses_entry = self.darkPosesEntry
+
             time_entry = self.darkTimeEntry
             master_time = rm_spaces(time_entry.get())
             mtk.clear_Entry(time_entry)
-
-            if not master_time:
-                print("Error: insert dark time!")
+            print("Checking master time...")
+            if not str_is_positive_int(master_time):
+                print("Error: invalid master time value!")
                 err_flag = True
             else:
                 master_time = int(master_time)
-                if master_time <= 0:
-                    print("Error: dark time must be positive!")
-                    err_flag = True
-                elif not (self.masterListWindow is None):
+                if not (self.masterListWindow is None):
                     for i in range(0, self.masterListDim):
                         if self.masterListWindow.typeEntries[i].get() == BIAS:
                             continue
@@ -419,18 +412,13 @@ class MainWindow(tk.Tk):
 
         master_poses = rm_spaces(poses_entry.get())
         mtk.clear_Entry(poses_entry)
-
-        if not master_poses:
-            print("Error: insert poses number!")
+        print("Checking master poses...")
+        if not str_is_positive_int(master_poses):
+            print("Error: invalid master poses value!")
             err_flag = True
         else:
             master_poses = int(master_poses)
-            if master_poses <= 0:
-                print("Error: poses number must be positive!")
-                err_flag = True
-            else:
-                # Poses number is legal
-                poses_entry.configure(bg=EN_BG)
+            poses_entry.configure(bg=EN_BG)
 
         if err_flag:
             poses_entry.configure(bg=COL_ERR)
@@ -544,7 +532,7 @@ class MainWindow(tk.Tk):
         self.wsPath = ""
 
         self.starList = []
-        self.listDim = 0
+        self.starListDim = 0
         self.refName = None
         self.refPose = None
 
@@ -607,7 +595,7 @@ class SynthesisWindow(tk.Toplevel):
     # Synthesis report
     def syn(self):
         syn_string = ""
-        for i in range(0, self.master.listDim):
+        for i in range(0, self.master.starListDim):
             star_info = self.master.starList[i]
 
             if not is_standard(star_info.name):
@@ -616,7 +604,7 @@ class SynthesisWindow(tk.Toplevel):
                 std_str = "\n"
 
             syn_string += ("STAR: " + star_info.name +
-                           " N_Pose: " + str(star_info.pose) +
+                           " N_Poses: " + str(star_info.poses) +
                            " N_Flat: " + str(star_info.flat) +
                            " N_Neon: " + str(star_info.neon) +
                            " T_Dark: " + str(star_info.dark_time) +
