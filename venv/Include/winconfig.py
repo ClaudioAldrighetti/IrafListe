@@ -1,6 +1,6 @@
 # Windows configuration and widgets layout
 from sys import platform
-from tkinter import FLAT
+from tkinter import FLAT, NORMAL
 
 from utility import WinGeometry
 
@@ -42,7 +42,6 @@ BT_REL = FLAT       # Relief
 EN_BG = "#454545"
 EN_FG = GEN_FG
 EN_INS = "#f0f0f0"
-COL_ERR = "Red"
 
 # Option Menu style
 OM_STYLE = "Optionmenu.TMenubutton"

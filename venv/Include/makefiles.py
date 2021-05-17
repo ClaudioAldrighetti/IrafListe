@@ -2,7 +2,7 @@
 import os.path as opt
 from operator import attrgetter
 
-from utility import *
+from utility import is_standard, BIAS
 
 # STAR LIST FILES
 

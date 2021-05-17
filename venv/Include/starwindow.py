@@ -79,11 +79,10 @@ class StarListWindow(tk.Toplevel):
         ref_pose_str = rm_spaces(self.refPoseEntry.get())
         if not str_is_positive_int(ref_pose_str):
             print("Error: illegal reference pose value!")
-            self.refPoseEntry.configure(bg=COL_ERR)
+            mtk.entry_err_blink(self.refPoseEntry)
             self.master.refPose = None
             err_flag = True
         else:
-            self.refPoseEntry.configure(bg=EN_BG)
             self.master.refPose = int(ref_pose_str)
 
         # Check and retrieve stars information
@@ -100,44 +99,40 @@ class StarListWindow(tk.Toplevel):
 
             if not str_is_positive_int(poses_entry_str):
                 print("Error: illegal poses value for star: " + star_entry + "!")
-                self.posesEntries[i].configure(bg=COL_ERR)
+                mtk.entry_err_blink(self.posesEntries[i])
                 star_poses = None
                 err_flag = True
             else:
-                self.posesEntries[i].configure(bg=EN_BG)
                 star_poses = int(poses_entry_str)
 
             if not str_is_positive_int(flat_entry_str):
                 print("Error: illegal flat value for star: " + star_entry + "!")
-                self.flatEntries[i].configure(bg=COL_ERR)
+                mtk.entry_err_blink(self.flatEntries[i])
                 star_flat = None
                 err_flag = True
             else:
-                self.flatEntries[i].configure(bg=EN_BG)
                 star_flat = int(flat_entry_str)
 
             if not str_is_positive_int(neon_entry_str):
                 print("Error: illegal neon value for star: " + star_entry + "!")
-                self.neonEntries[i].configure(bg=COL_ERR)
+                mtk.entry_err_blink(self.neonEntries[i])
                 star_neon = None
                 err_flag = True
             else:
-                self.neonEntries[i].configure(bg=EN_BG)
                 star_neon = int(neon_entry_str)
 
             if not str_is_positive_int(dark_entry_str):
                 print("Error: illegal dark time value for star: " + star_entry + "!")
-                self.darkEntries[i].configure(bg=COL_ERR)
+                mtk.entry_err_blink(self.darkEntries[i])
                 star_dark = None
                 err_flag = True
             else:
-                self.neonEntries[i].configure(bg=EN_BG)
                 star_dark = int(dark_entry_str)
 
             if not is_standard(star_entry):
                 if not standard_entry or not is_standard(standard_entry):
                     print("Error: invalid standard for star: " + star_entry + "!")
-                    self.standardEntries[i].configure(bg=COL_ERR)
+                    mtk.entry_err_blink(self.standardEntries[i])
                     standard_entry = None
                     err_flag = True
                 else:
@@ -148,14 +143,12 @@ class StarListWindow(tk.Toplevel):
                         std_poses_entry = rm_spaces(self.posesEntries[j].get())
                         if not str_is_positive_int(std_poses_entry):
                             print("Error: illegal poses value for standard: " + standard_entry + "!")
-                            self.posesEntries[j].configure(bg=COL_ERR)
+                            mtk.entry_err_blink(self.posesEntries[j])
                             err_flag = True
                         else:
-                            self.posesEntries[j].configure(bg=EN_BG)
                             std_poses = int(std_poses_entry)
 
                         std_flag = True
-                        self.standardEntries[i].configure(bg=EN_BG)
                         break
             else:
                 standard_entry = None
@@ -163,7 +156,7 @@ class StarListWindow(tk.Toplevel):
 
             if not std_flag:
                 print("Error: standard not found for star: " + star_entry + "!")
-                self.standardEntries[i].configure(bg=COL_ERR)
+                mtk.entry_err_blink(self.standardEntries[i])
                 standard_entry = None
                 err_flag = True
 

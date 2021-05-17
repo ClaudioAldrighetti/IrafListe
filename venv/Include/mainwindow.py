@@ -164,7 +164,7 @@ class MainWindow(tk.Tk):
         mtk.clear_Entry(self.starEntry)
         if not star_name:
             print("Error: insert a star name!")
-            self.starEntry.configure(bg=COL_ERR)
+            mtk.entry_err_blink(self.starEntry)
             return
         elif self.starListWindow is None:
             # Open star list window
@@ -178,9 +178,9 @@ class MainWindow(tk.Tk):
                 i_star = self.starListWindow.starEntries[i].get()
                 if star_name == i_star:
                     print("Error: star is already in the list!")
-                    self.starEntry.configure(bg=COL_ERR)
+                    mtk.entry_err_blink(self.starEntry)
                     return
-        self.starEntry.configure(bg=EN_BG)
+        mtk.clear_Entry(self.starEntry)
 
         self.starListDim += 1
         list_dim = self.starListDim
@@ -283,10 +283,9 @@ class MainWindow(tk.Tk):
         # Check ref name
         print("Checking inserted name...")
         ref_name = rm_spaces(self.refEntry.get())
-        mtk.clear_Entry(self.refEntry)
         if not ref_name:
             print("Error: insert a star name!")
-            self.refEntry.configure(bg=COL_ERR)
+            mtk.entry_err_blink(self.refEntry)
             return
 
         for i in range(0, self.starListDim):
@@ -297,7 +296,7 @@ class MainWindow(tk.Tk):
             print("Setting the reference star...")
             self.refName = ref_name
 
-            self.refEntry.configure(bg=EN_BG)
+            mtk.clear_Entry(self.refEntry)
 
             self.curRefLabel.configure(state=tk.NORMAL)
             mtk.clear_Entry(self.curRefEntry, tk.NORMAL)
@@ -315,7 +314,7 @@ class MainWindow(tk.Tk):
             return
 
         print("Error: invalid reference star name!")
-        self.refEntry.configure(bg=COL_ERR)
+        mtk.entry_err_blink(self.refEntry)
         return
 
     def set_spec(self, mode):
@@ -389,7 +388,6 @@ class MainWindow(tk.Tk):
 
             time_entry = self.darkTimeEntry
             master_time = rm_spaces(time_entry.get())
-            mtk.clear_Entry(time_entry)
             print("Checking master time...")
             if not str_is_positive_int(master_time):
                 print("Error: invalid master time value!")
@@ -406,30 +404,28 @@ class MainWindow(tk.Tk):
                             print("Error: master dark with such pose time already exists!")
                             err_flag = True
                             break
-                else:
-                    # Dark time value is legal
-                    time_entry.configure(bg=EN_BG)
 
         master_poses = rm_spaces(poses_entry.get())
-        mtk.clear_Entry(poses_entry)
         print("Checking master poses...")
         if not str_is_positive_int(master_poses):
             print("Error: invalid master poses value!")
             err_flag = True
         else:
             master_poses = int(master_poses)
-            poses_entry.configure(bg=EN_BG)
 
         if err_flag:
-            poses_entry.configure(bg=COL_ERR)
+            mtk.entry_err_blink(poses_entry)
             if master_type == DARK:
-                time_entry.configure(bg=COL_ERR)
+                mtk.entry_err_blink(time_entry)
             return
 
+        mtk.clear_Entry(poses_entry)
         if bias_flag:
             self.biasButton.configure(state=tk.DISABLED)
             self.biasPosesLabel.configure(state=tk.DISABLED)
             self.biasPosesEntry.configure(state=tk.DISABLED)
+        else:
+            mtk.clear_Entry(time_entry)
 
         self.masterListDim += 1
         self.masterFlag = True

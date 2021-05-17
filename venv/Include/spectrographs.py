@@ -109,21 +109,25 @@ class SpecWindow(tk.Toplevel):
     def check_info(self):
         check_flag = True
         print("Checking inserted spectrograph data...")
+        if not rm_spaces(self.nameEntry.get()):
+            print("Error: insert a spectrograph name!")
+            mtk.entry_err_blink(self.nameEntry)
+            check_flag = False
         if not str_is_positive_int(rm_spaces(self.minHEntry.get())):
             print("Error: invalid minimum pixel height!")
-            self.minHEntry.configure(bg=COL_ERR)
+            mtk.entry_err_blink(self.minHEntry)
             check_flag = False
         if not str_is_positive_int(rm_spaces(self.maxHEntry.get())):
             print("Error: invalid maximum pixel height!")
-            self.maxHEntry.configure(bg=COL_ERR)
+            mtk.entry_err_blink(self.maxHEntry)
             check_flag = False
         if not str_is_positive_int(rm_spaces(self.imageHEntry.get())):
             print("Error: invalid image height!")
-            self.imageHEntry.configure(bg=COL_ERR)
+            mtk.entry_err_blink(self.imageHEntry)
             check_flag = False
         if not str_is_positive_int(rm_spaces(self.rowEntry.get())):
             print("Error: invalid maximum file length!")
-            self.rowEntry.configure(bg=COL_ERR)
+            mtk.entry_err_blink(self.rowEntry)
             check_flag = False
         return check_flag
 

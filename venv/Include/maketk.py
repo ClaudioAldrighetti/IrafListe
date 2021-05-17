@@ -46,6 +46,26 @@ def clear_Entry(entry, final_state=None):
     return
 
 
+# Entry error blink function
+def _change_bg(this_entry, new_color):
+    this_entry.configure(bg=new_color)
+    return
+
+
+def entry_err_blink(this_entry):
+    clear_Entry(this_entry)
+
+    t_ms = 0
+    t_step = 100
+    for i in range(1):
+        this_entry.after(t_ms, lambda entry=this_entry, color="Red": _change_bg(entry, color))
+        this_entry.after(t_ms + t_step, lambda entry=this_entry, color="White": _change_bg(entry, color))
+        this_entry.after(t_ms + t_step*2, lambda entry=this_entry, color="Black": _change_bg(entry, color))
+        this_entry.after(t_ms + t_step*3, lambda entry=this_entry, color=EN_BG: _change_bg(entry, color))
+        t_ms += t_step*4
+    return
+
+
 def make_OptionMenu(master, var_val, list_val, defaultval=None,
                     row=0, column=0, padx=1, pady=3, width=10, sticky=tk.EW, state=tk.NORMAL):
     new_optionmenu = ttk.OptionMenu(master, var_val, defaultval, *list_val)
