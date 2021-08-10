@@ -5,11 +5,12 @@ from winconfig import *
 
 
 def make_Button(master, command, state=tk.NORMAL, text="",
-                bg=BT_BG, fg=BT_FG, highlightbackground=BT_BDC, highlightthickness=BT_BDT, activebackground=BT_ABG,
+                bg=BT_BG, fg=BT_FG, relief=BT_REL,
+                highlightbackground=BT_BDC, highlightthickness=BT_BDT, activebackground=BT_ABG,
                 row=0, column=0, height=0, padx=3, pady=3, sticky=tk.EW,
                 grid_flag=True, fill=tk.NONE, expand=False):
     new_button = tk.Button(master, command=command, state=state, text=text, default=tk.ACTIVE,
-                           bg=bg, fg=fg, height=height, relief=BT_REL, activebackground=activebackground,
+                           bg=bg, fg=fg, height=height, relief=relief, activebackground=activebackground,
                            highlightbackground=highlightbackground, highlightthickness=highlightthickness)
     if grid_flag:
         new_button.grid(row=row, column=column, padx=padx, pady=pady, sticky=sticky)
@@ -18,8 +19,8 @@ def make_Button(master, command, state=tk.NORMAL, text="",
     return new_button
 
 
-def make_Label(master, text="", row=0, column=0, padx=1, pady=3, sticky=tk.E, state=tk.NORMAL):
-    new_label = tk.Label(master, text=text, bg=LB_BG, fg=LB_FG, state=state)
+def make_Label(master, text="", bg=LB_BG, fg=LB_FG, row=0, column=0, padx=1, pady=3, sticky=tk.E, state=tk.NORMAL):
+    new_label = tk.Label(master, text=text, bg=bg, fg=fg, state=state)
     new_label.grid(row=row, column=column, padx=padx, pady=pady, sticky=sticky)
 
     return new_label
@@ -76,8 +77,20 @@ def make_OptionMenu(master, var_val, list_val, defaultval=None,
     return new_optionmenu
 
 
-def make_Separator(master, padx=2, pady=3, fill=tk.X):
-    new_separator = tk.Frame(master, bg=SEP_BG, height=SEP_HGT, bd=0)
+def make_Checkbutton(master, var, text="", state=tk.NORMAL, offvalue=0, onvalue=1,
+                     bg=CB_BG, fg=CB_FG, selectcolor=CB_SELC, activebackground=CB_ABC, activeforeground=CB_AFC,
+                     row=0, column=0, padx=1, pady=3, sticky=tk.E):
+    new_checkbutton = tk.Checkbutton(master, variable=var, text=text, state=state, offvalue=offvalue, onvalue=onvalue,
+                                     bg=bg, fg=fg, selectcolor=selectcolor,
+                                     activebackground=activebackground, activeforeground=activeforeground)
+    new_checkbutton.grid(row=row, column=column, padx=padx, pady=pady, sticky=sticky)
+
+    return new_checkbutton
+
+
+def make_Separator(master, bg=SEP_BG, height=SEP_HGT,
+                   padx=2, pady=3, fill=tk.X):
+    new_separator = tk.Frame(master, bg=bg, height=height, bd=0)
     new_separator.pack(padx=padx, pady=pady, fill=fill)
 
     return new_separator

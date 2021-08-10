@@ -1,17 +1,17 @@
 # Windows configuration and widgets layout
 from sys import platform
-from tkinter import FLAT, NORMAL
+from tkinter import FLAT
 
 from utility import WinGeometry
 
 # Windows size and offset
 if platform == "linux":
     # Linux distribution configuration
-    MAIN_WIN_DEF_GEOM = WinGeometry(390, 470, 100, 100)     # Main Window configuration
-    MASTER_WIN_DEF_GEOM = WinGeometry(270, 65, 420, 370)    # Master List Window configuration
-    STAR_WIN_DEF_GEOM = WinGeometry(510, 90, 420, 100)      # Star List Window configuration
-    SPEC_WIN_DEF_GEOM = WinGeometry(275, 270, 420, 250)     # Spectrographs Setting Window configuration
-    STARL_EN_HG = 34                                        # (Star) List Entry
+    MAIN_WIN_DEF_GEOM = WinGeometry(420, 500, 100, 100)     # Main Window configuration
+    MASTER_WIN_DEF_GEOM = WinGeometry(270, 55, 420, 370)    # Master List Window configuration
+    STAR_WIN_DEF_GEOM = WinGeometry(545, 105, 420, 100)     # Star List Window configuration
+    SPEC_WIN_DEF_GEOM = WinGeometry(245, 260, 420, 250)     # Spectrographs Setting Window configuration
+    STARL_EN_HG = 45                                        # (Star) List Entry
 else:
     # Windows or other
     MAIN_WIN_DEF_GEOM = WinGeometry(300, 370, 100, 100)
@@ -50,6 +50,13 @@ OM_FG = GEN_FG
 OM_ABG = BT_ABG  # Active background color
 OM_BDC = BT_BDC
 OM_BDT = 1
+
+# Checkbutton style
+CB_BG = FR_BG
+CB_FG = BT_FG
+CB_SELC = BT_BG
+CB_ABC = FR_BG
+CB_AFC = BT_FG
 
 # Labels style
 LB_BG = FR_BG

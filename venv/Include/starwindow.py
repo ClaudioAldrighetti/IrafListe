@@ -58,7 +58,7 @@ class StarListWindow(tk.Toplevel):
         print("START SESSION")
 
         err_flag = False
-
+        std_check_flag = self.master.standardVar.get()
         master_flag = self.master.masterFlag
         self.master.starList = []
 
@@ -129,7 +129,7 @@ class StarListWindow(tk.Toplevel):
             else:
                 star_dark = int(dark_entry_str)
 
-            if not is_standard(star_entry):
+            if std_check_flag and not is_standard(star_entry):
                 if not standard_entry or not is_standard(standard_entry):
                     print("Error: invalid standard for star: " + star_entry + "!")
                     mtk.entry_err_blink(self.standardEntries[i])
@@ -196,14 +196,16 @@ class StarListWindow(tk.Toplevel):
         mf.make_ListaChiConChi(ws_path, star_list, list_dim)
         mf.make_ListaCalibraLambda(ws_path, star_list, list_dim)
         mf.make_STANDARD(ws_path, star_list, list_dim)
-        mf.make_DaFlussare(ws_path, star_list, list_dim)
-        mf.make_Flussati(ws_path, star_list, list_dim)
-        mf.make_HelioRename(ws_path, star_list, list_dim)
-        mf.make_RvCorrected(ws_path, star_list, list_dim)
+        if std_check_flag:
+            # Files needed only if standard stars are considered
+            mf.make_DaFlussare(ws_path, star_list, list_dim)
+            mf.make_Flussati(ws_path, star_list, list_dim)
+        mf.make_HelioRename(ws_path, star_list, list_dim, std_check_flag)
+        mf.make_RvCorrected(ws_path, star_list, list_dim, std_check_flag)
         mf.make_PreparoHelio(ws_path, star_list, list_dim)
         mf.make_Mediana(ws_path, star_list, list_dim)
-        mf.make_Pulizia3(ws_path, star_list, list_dim)
-        mf.make_Pulizia4(ws_path)
+        mf.make_Pulizia3(ws_path, star_list, list_dim, std_check_flag)
+        # mf.make_Pulizia4(ws_path)
         mf.make_ListaInizio(ws_path, master_flag)
 
         print("Session files have been created successfully")
@@ -223,6 +225,7 @@ class StarListWindow(tk.Toplevel):
         self.master.refButton.configure(state=tk.DISABLED)
         self.master.refLabel.configure(state=tk.DISABLED)
         self.master.refEntry.configure(state=tk.DISABLED)
+        self.master.standardCheck.configure(state=tk.DISABLED)
         self.master.curRefLabel.configure(state=tk.DISABLED)
         self.master.curRefEntry.configure(state=tk.DISABLED)
 

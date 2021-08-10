@@ -48,6 +48,10 @@ class MainWindow(tk.Tk):
         self.refLabel = mtk.make_Label(self.settingFrame, text="New REF:", row=2, column=1, state=tk.DISABLED)
         self.refEntry = mtk.make_Entry(self.settingFrame, row=2, column=2, state=tk.DISABLED)
 
+        self.standardVar = tk.IntVar(value=1)
+        self.standardCheck = mtk.make_Checkbutton(self.settingFrame, self.standardVar, text="No Standard", row=3,
+                                                  state=tk.DISABLED, offvalue=1, onvalue=0)
+
         self.curRefLabel = mtk.make_Label(self.settingFrame, text="Selected REF:", row=3, column=1, state=tk.DISABLED)
         self.curRefEntry = mtk.make_Entry(self.settingFrame, row=3, column=2, state=tk.DISABLED)
 
@@ -137,6 +141,8 @@ class MainWindow(tk.Tk):
         self.starEntry.configure(state=tk.NORMAL)
         self.starLabel.configure(state=tk.NORMAL)
         self.starButton.configure(state=tk.NORMAL)
+
+        self.standardCheck.configure(state=tk.NORMAL)
 
         self.specLabel.configure(state=tk.NORMAL)
         self.specOptions.configure(state=tk.NORMAL)
@@ -546,6 +552,11 @@ class MainWindow(tk.Tk):
         self.refButton.configure(state=tk.DISABLED)
         self.refLabel.configure(state=tk.DISABLED)
         mtk.clear_Entry(self.refEntry, tk.DISABLED)
+
+        self.standardCheck.deselect()
+        self.standardCheck.configure(state=tk.DISABLED)
+        self.standardVar.set(1)
+
         self.curRefLabel.configure(state=tk.DISABLED)
         mtk.clear_Entry(self.curRefEntry)
 
@@ -590,11 +601,13 @@ class SynthesisWindow(tk.Toplevel):
 
     # Synthesis report
     def syn(self):
+        std_check_flag = self.master.standardVar.get()
+
         syn_string = ""
         for i in range(0, self.master.starListDim):
             star_info = self.master.starList[i]
 
-            if not is_standard(star_info.name):
+            if std_check_flag and not is_standard(star_info.name):
                 std_str = " Standard: " + star_info.standard + "\n"
             else:
                 std_str = "\n"

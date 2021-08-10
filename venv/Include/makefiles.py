@@ -388,8 +388,15 @@ def make_Flussati(ws_path, star_list, list_dim):
     return
 
 
-def make_HelioRename(ws_path, star_list, list_dim):
+def make_HelioRename(ws_path, star_list, list_dim, std_check_flag):
     print("Creating HELIO files...")
+
+    # Check flux
+    if std_check_flag:
+        img_ext_str = "_fwx.fits"
+    else:
+        img_ext_str = "_fw.fits"
+
     for i in range(0, list_dim):
         star_info = star_list[i]
         if is_standard(star_info.name):
@@ -401,19 +408,22 @@ def make_HelioRename(ws_path, star_list, list_dim):
 
             for i_pose in range(1, star_info.poses + 1):
                 new_file.write(
-                    "cp " + star_info.name + "-" + str(i_pose) + "_fwx.fits " +
+                    "cp " + star_info.name + "-" + str(i_pose) + img_ext_str + " " +
                     star_info.name + "-" + str(i_pose) + "_hv.fits\n")
+
+            if not std_check_flag:
+                continue
 
             for i_pose in range(1, star_info.std_pose + 1):
                 new_file.write(
-                    "cp " + star_info.standard + "-" + str(i_pose) + "_fwx.fits " +
+                    "cp " + star_info.standard + "-" + str(i_pose) + img_ext_str + " " +
                     star_info.standard + "-" + str(i_pose) + "_hv.fits\n")
 
         new_file.close()
     return
 
 
-def make_RvCorrected(ws_path, star_list, list_dim):
+def make_RvCorrected(ws_path, star_list, list_dim, std_check_flag):
     print("Creating RV_CORRECTED files...")
     for i in range(0, list_dim):
         star_info = star_list[i]
@@ -426,6 +436,9 @@ def make_RvCorrected(ws_path, star_list, list_dim):
 
             for i_pose in range(1, star_info.poses + 1):
                 new_file.write(star_info.name + "-" + str(i_pose) + "_hv.fits\n")
+
+            if not std_check_flag:
+                continue
 
             for i_pose in range(1, star_info.std_pose + 1):
                 new_file.write(star_info.standard + "-" + str(i_pose) + "_hv.fits\n")
@@ -461,6 +474,8 @@ def make_Mediana(ws_path, star_list, list_dim):
     print("Creating MEDIANA files...")
     for i in range(0, list_dim):
         star_info = star_list[i]
+        if is_standard(star_info.name):
+            continue
 
         file_name = star_info.name + "_mediana.txt"
         file_path = opt.join(ws_path, file_name)
@@ -473,7 +488,7 @@ def make_Mediana(ws_path, star_list, list_dim):
     return
 
 
-def make_Pulizia3(ws_path, star_list, list_dim):
+def make_Pulizia3(ws_path, star_list, list_dim, std_check_flag):
     print("Creating pulizia3.txt file...")
     file_path = opt.join(ws_path, "pulizia3.txt")
     with open(file_path, "w") as new_file:
@@ -485,24 +500,24 @@ def make_Pulizia3(ws_path, star_list, list_dim):
 
             new_file.write(
                 "mkdir " + star_info.name + "\n"
-                "mv " + star_info.name + "-* " + star_info.name + "\n"
-                "mv " + star_info.name + "_da_flussare.txt " + star_info.name + "\n"
-                "mv " + star_info.name + "_flussati.txt " + star_info.name + "\n"
+                "mv " + star_info.name + "-* " + star_info.name + "\n")
+
+            if std_check_flag:
+                new_file.write(
+                    "mv " + star_info.name + "_da_flussare.txt " + star_info.name + "\n"
+                    "mv " + star_info.name + "_flussati.txt " + star_info.name + "\n")
+
+            new_file.write(
                 "mv " + star_info.name + "_helio_rename.txt " + star_info.name + "\n"
                 "mv " + star_info.name + "_rv_corrected.txt " + star_info.name + "\n"
                 "mv " + star_info.name + "_preparo_helio.txt " + star_info.name + "\n"
-                "mv " + star_info.name + "_mediana.txt " + star_info.name + "\n"
-                "cp " + star_info.standard + "-* " + star_info.name + "\n"
-                "cp STANDARD_" + star_info.standard + ".txt " + star_info.name + "\n")
+                "mv " + star_info.name + "_mediana.txt " + star_info.name + "\n")
 
-    new_file.close()
-    return
+            if std_check_flag:
+                new_file.write(
+                    "cp " + star_info.standard + "-* " + star_info.name + "\n"
+                    "cp STANDARD_" + star_info.standard + ".txt " + star_info.name + "\n")
 
-
-def make_Pulizia4(ws_path):
-    print("Creating pulizia4.txt file...")
-    file_path = opt.join(ws_path, "pulizia4.txt")
-    with open(file_path, "w") as new_file:
         new_file.write(
             "mkdir 06_standard\n"
             "mv *.fits 06_standard\n"
@@ -512,6 +527,7 @@ def make_Pulizia4(ws_path):
             "cd ..\n"
             "mkdir 07_liste\n"
             "mv *.txt 07_liste\n")
+
     new_file.close()
     return
 
