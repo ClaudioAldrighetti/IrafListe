@@ -13,7 +13,7 @@ def rm_spaces(this_str):
 
 
 def is_standard(this_name):
-    return this_name[:2].upper() == "HR"
+    return (this_name[:2].upper() == "HR") or (this_name[:2].upper() == "HD")
 
 
 def str_is_positive_int(this_string):
