@@ -1,5 +1,6 @@
 import tkinter as tk
 import os
+#import os.path as opt
 
 import makefiles as mf
 import maketk as mtk
@@ -77,6 +78,13 @@ class MasterListWindow(tk.Toplevel):
         mf.make_ListaBias(ws_path, bias_poses)
         mf.make_CreaMasterDb(ws_path, master_list, list_dim)
 
+        # Ensure the file lista_inizio to contain the master command at the second line if it has already been created
+        lista_inizio_path = os.path.join(ws_path, "lista_inizio.txt")
+        if os.path.isfile(lista_inizio_path):
+            print("Adding master command to lista_inizio.txt file...")
+            os.remove(lista_inizio_path)
+            mf.make_ListaInizio(ws_path, True)
+
         print("Master files have been created successfully")
 
         self.master.darkButton.configure(state=tk.DISABLED)
@@ -103,6 +111,19 @@ class MasterListWindow(tk.Toplevel):
         self.master.biasButton.configure(state=tk.NORMAL)
         self.master.biasPosesLabel.configure(state=tk.NORMAL)
         self.master.biasPosesEntry.configure(state=tk.NORMAL)
+
+        # Check workspace directory
+        ws_path = self.master.wsPath
+        if not os.path.exists(ws_path):
+            print("Error: workspace directory doesn't exist!")
+            return
+
+        # Delete the master command from lista_inizio if it has already been created
+        lista_inizio_path = os.path.join(ws_path, "lista_inizio.txt")
+        if os.path.isfile(lista_inizio_path):
+            print("Removing master command from lista_inizio.txt file...")
+            os.remove(lista_inizio_path)
+            mf.make_ListaInizio(ws_path, False)
 
         # Close master list window
         print("Closing master list window...")

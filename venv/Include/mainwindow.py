@@ -134,7 +134,8 @@ class MainWindow(tk.Tk):
         print("WS: " + self.wsPath)
         print("Workspace set successfully")
 
-        self.wsEntry.configure(state=tk.NORMAL)
+        # self.wsEntry.configure(state=tk.NORMAL)
+        mtk.clear_Entry(self.wsEntry, tk.NORMAL)
         self.wsEntry.insert(0, self.wsPath)
         self.wsEntry.configure(state="readonly")
 
@@ -253,13 +254,8 @@ class MainWindow(tk.Tk):
         self.starListDim -= 1
 
         if self.starListDim == 0:
-            self.refButton.configure(state=tk.DISABLED)
-            self.refLabel.configure(state=tk.DISABLED)
-            self.refEntry.configure(state=tk.DISABLED)
-
             print("Closing star list window...")
-            self.starListWindow.destroy()
-            self.starListWindow = None
+            self.starListWindow.close()
 
             print("Star removed correctly")
             return
@@ -491,9 +487,7 @@ class MainWindow(tk.Tk):
 
         if self.masterListDim == 0:
             print("Closing master list window...")
-            self.masterListWindow.destroy()
-            self.masterListWindow = None
-            self.masterFlag = False
+            self.masterListWindow.close()
 
             print("Master removed correctly")
             return
