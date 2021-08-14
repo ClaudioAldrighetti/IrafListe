@@ -518,13 +518,16 @@ def make_Pulizia3(ws_path, star_list, list_dim, std_check_flag):
                     "cp " + star_info.standard + "-* " + star_info.name + "\n"
                     "cp STANDARD_" + star_info.standard + ".txt " + star_info.name + "\n")
 
+        if std_check_flag:
+            new_file.write(
+                "mkdir 06_standard\n"
+                "mv *.fits 06_standard\n"
+                "mv *.fit 06_standard\n"
+                "cd 06_standard\n"
+                "!gzip *\n"
+                "cd ..\n")
+
         new_file.write(
-            "mkdir 06_standard\n"
-            "mv *.fits 06_standard\n"
-            "mv *.fit 06_standard\n"
-            "cd 06_standard\n"
-            "!gzip *\n"
-            "cd ..\n"
             "mkdir 07_liste\n"
             "mv *.txt 07_liste\n")
 
