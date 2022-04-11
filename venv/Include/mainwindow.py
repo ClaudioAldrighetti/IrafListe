@@ -1,7 +1,18 @@
+""" Main Window
+author: Aldrighetti Claudio
+
+description:
+Principal dialog that allows to:
+* Select the workspace of the project;
+* Insert star and reference star into the star list;
+* Insert master bias and dark into the master list.
+"""
+
 import tkinter as tk
 from tkinter import filedialog as fd
 from tkinter import messagebox
 
+# Local python files
 from starwindow import StarListWindow
 from masterwindow import MasterListWindow
 import maketk as mtk
@@ -12,6 +23,59 @@ from spectrographs import SPEC_INFO, ADD, MOD, DEL, get_spec_info, SpecWindow
 
 # Main window class
 class MainWindow(tk.Tk):
+    """
+    Implement principal window of the program.
+
+    Fields
+    ------
+    wsPath : str
+        Workspace path of the project, where IRAF command files are created.
+    starList : StarInfo[]
+        List of information about selected stars, is filled when the session is launched.
+    starListDim : int
+        Number of selected star (size of the star list).
+    refName : str
+        Reference star name.
+    refPose : int
+        Reference pose index.
+    specVal : tk.StringVar
+        Spectrograph used for the current session.
+    masterListDim : int
+        Dimension of the master list.
+    masterFlag : boolean
+        Flag that indicates if the temporary master list is empty or not, True means that there is at least one master.
+
+    Methods
+    -------
+    select_ws_path()
+        Open a dialog for the user to chose/change the workspace directory for the project, where the IRAF command
+        files are created.
+    add_star()
+        Add the chosen star to the star list and open/update the StarWindow dialog.
+    remove_star(record_to_remove)
+        Remove the record at the passed index from StarWindow and the relative star from the star list; if there are no
+        stars remaining, it also closes the StarWindow dialog.
+    select_ref()
+        Set the specified star as reference star for the current session. The selected star must already exist in the
+        star list.
+    set_spec()
+        Add a new spectrograph to the list of the existing ones or modify the selected spectrograph by opening a new
+        SpecWindow dialog. For the first case, the information is stored in the spectrographs.csv file.
+    del_spec()
+        Remove the selected spectrograph from the spectrograph list and csv file.
+    gen_syn()
+        Generate the synthesis of the session by opening the correlated dialog.
+    add_master(master_type)
+        Add the inserted master bias/dark to the master list. MasterWindow dialog is opened/updated.
+    remove_master(record_to_remove)
+        Remove the master at the given index in the list.
+    restart()
+        Restart the session, it also closes others dialog.
+    """
+
+    """
+    Initialize 
+    """
     def __init__(self):
         super().__init__()
         self.title("IRAF Liste")
@@ -182,7 +246,7 @@ class MainWindow(tk.Tk):
             self.refEntry.configure(state=tk.NORMAL)
         else:
             for i in range(0, self.starListDim):
-                i_star = self.starListWindow.starEntries[i].get()
+                i_star = self.starListWindow.starEntries[i]
                 if star_name == i_star:
                     print("Error: star is already in the list!")
                     mtk.entry_err_blink(self.starEntry)
@@ -195,43 +259,30 @@ class MainWindow(tk.Tk):
 
         # Add new record on the star list window
         print("Adding a new record on the star list window...")
-        new_remove_button = mtk.make_Button(list_frame, text="-", row=list_dim, pady=1,
-                                            command=lambda to_remove=list_dim: self.remove_star(to_remove))
-        self.starListWindow.removeButtons.append(new_remove_button)
+        self.starListWindow.starEntries.append(star_name)
+        self.starListWindow.posesEntries.append('')
+        self.starListWindow.flatEntries.append(5)
+        self.starListWindow.neonEntries.append(3)
+        self.starListWindow.darkEntries.append('')
+        self.starListWindow.standardEntries.append('')
 
-        new_star_entry = mtk.make_Entry(list_frame, text=star_name,
-                                        row=list_dim, column=1, padx=2, width=20, sticky=tk.EW, state="readonly")
-        self.starListWindow.starEntries.append(new_star_entry)
+        self.starListWindow.starEntry.menu.add_command(label=star_name,
+                                                       command=lambda name=star_name:
+                                                       self.starListWindow.select_name(name))
 
-        new_pose_entry = mtk.make_Entry(list_frame, row=list_dim, column=2, width=6, sticky=tk.EW)
-        self.starListWindow.posesEntries.append(new_pose_entry)
-
-        new_flat_entry = mtk.make_Entry(list_frame, text=5, row=list_dim, column=3, width=6, sticky=tk.EW)
-        self.starListWindow.flatEntries.append(new_flat_entry)
-
-        new_neon_entry = mtk.make_Entry(list_frame, text=3, row=list_dim, column=4, width=6, sticky=tk.EW)
-        self.starListWindow.neonEntries.append(new_neon_entry)
-
-        new_dark_entry = mtk.make_Entry(list_frame, row=list_dim, column=5, width=6, sticky=tk.EW)
-        self.starListWindow.darkEntries.append(new_dark_entry)
-
-        new_standard_entry = mtk.make_Entry(list_frame, row=list_dim, column=6, width=10, sticky=tk.EW)
-        if is_standard(star_name):
-            new_standard_entry.configure(state=tk.DISABLED)
-        self.starListWindow.standardEntries.append(new_standard_entry)
-
-        # Resize star list window
-        self.starListWindow = resized_window(self.starListWindow, self.starListDim, STARL_EN_HG)
+        if list_dim == 1:
+            self.starListWindow.select(0)
+        else:
+            self.starListWindow.infoWindow.refresh()
 
         print("New star added successfully")
         return
 
     # Remove a star from the list
-    def remove_star(self, record_to_remove):
+    def remove_star(self, index):
         print("REMOVE STAR")
 
-        index_to_remove = record_to_remove - 1
-        name_to_remove = self.starListWindow.starEntries[index_to_remove].get()
+        name_to_remove = self.starListWindow.starEntries[index]
 
         # Check if the star to remove is the reference star
         if is_standard(name_to_remove) and self.curRefEntry.get() == name_to_remove:
@@ -243,37 +294,21 @@ class MainWindow(tk.Tk):
             self.starListWindow.refPoseLabel.configure(state=tk.DISABLED)
             mtk.clear_Entry(self.starListWindow.refPoseEntry, tk.DISABLED)
 
-        self.starListWindow.removeButtons.pop(index_to_remove).destroy()
-        self.starListWindow.starEntries.pop(index_to_remove).destroy()
-        self.starListWindow.posesEntries.pop(index_to_remove).destroy()
-        self.starListWindow.flatEntries.pop(index_to_remove).destroy()
-        self.starListWindow.neonEntries.pop(index_to_remove).destroy()
-        self.starListWindow.darkEntries.pop(index_to_remove).destroy()
-        self.starListWindow.standardEntries.pop(index_to_remove).destroy()
+        self.starListWindow.starEntries.pop(index)
+        self.starListWindow.posesEntries.pop(index)
+        self.starListWindow.flatEntries.pop(index)
+        self.starListWindow.neonEntries.pop(index)
+        self.starListWindow.darkEntries.pop(index)
+        self.starListWindow.standardEntries.pop(index)
 
         self.starListDim -= 1
 
         if self.starListDim == 0:
             print("Closing star list window...")
             self.starListWindow.close()
-
-            print("Star removed correctly")
-            return
-
-        for i in range(index_to_remove, self.starListDim):
-            new_row = self.starListWindow.starEntries[i].grid_info().get("row")-1
-            self.starListWindow.removeButtons[i].configure(command=lambda to_remove=new_row:
-                                                           self.remove_star(to_remove))
-            self.starListWindow.removeButtons[i].grid(row=new_row)
-            self.starListWindow.starEntries[i].grid(row=new_row)
-            self.starListWindow.posesEntries[i].grid(row=new_row)
-            self.starListWindow.flatEntries[i].grid(row=new_row)
-            self.starListWindow.neonEntries[i].grid(row=new_row)
-            self.starListWindow.darkEntries[i].grid(row=new_row)
-            self.starListWindow.standardEntries[i].grid(row=new_row)
-
-        # Resize star list window
-        self.starListWindow = resized_window(self.starListWindow, self.starListDim, STARL_EN_HG)
+        else:
+            self.starListWindow.select(0, False)
+            self.starListWindow.infoWindow.refresh()
 
         print("Star removed correctly")
         return
@@ -291,7 +326,7 @@ class MainWindow(tk.Tk):
             return
 
         for i in range(0, self.starListDim):
-            if ref_name != self.starListWindow.starEntries[i].get():
+            if ref_name != self.starListWindow.starEntries[i]:
                 continue
 
             # Set reference star

@@ -7,13 +7,14 @@ from winconfig import *
 def make_Button(master, command, state=tk.NORMAL, text="",
                 bg=BT_BG, fg=BT_FG, relief=BT_REL,
                 highlightbackground=BT_BDC, highlightthickness=BT_BDT, activebackground=BT_ABG,
-                row=0, column=0, height=0, padx=3, pady=3, sticky=tk.EW,
+                row=0, rowspan=1, columnspan=1, column=0, height=0, padx=3, pady=3, sticky=tk.EW,
                 grid_flag=True, fill=tk.NONE, expand=False):
     new_button = tk.Button(master, command=command, state=state, text=text, default=tk.ACTIVE,
                            bg=bg, fg=fg, height=height, relief=relief, activebackground=activebackground,
                            highlightbackground=highlightbackground, highlightthickness=highlightthickness)
     if grid_flag:
-        new_button.grid(row=row, column=column, padx=padx, pady=pady, sticky=sticky)
+        new_button.grid(row=row, rowspan=rowspan, column=column, columnspan=columnspan,
+                        padx=padx, pady=pady, sticky=sticky)
     else:
         new_button.pack(padx=padx, pady=pady, fill=fill, expand=expand)
     return new_button
@@ -34,6 +35,13 @@ def make_Entry(master, text="", row=0, column=0, padx=1, pady=3, width=15, stick
     new_entry.configure(state=state)
 
     return new_entry
+
+
+def make_ListBox(master, row=0, column=0, padx=1, pady=3, width=15, sticky=tk.W, selectmode=tk.SINGLE):
+    new_list_box = tk.Listbox(master, width=width, bg=EN_BG, fg=EN_FG, selectmode=selectmode)
+    new_list_box.grid(row=row, column=column, padx=padx, pady=pady, sticky=sticky)
+
+    return new_list_box
 
 
 def clear_Entry(entry, final_state=None):

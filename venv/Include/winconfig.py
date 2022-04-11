@@ -8,15 +8,15 @@ from utility import WinGeometry
 if platform == "linux":
     # Linux distribution configuration
     MAIN_WIN_DEF_GEOM = WinGeometry(420, 500, 100, 100)     # Main Window configuration
-    MASTER_WIN_DEF_GEOM = WinGeometry(270, 55, 420, 370)    # Master List Window configuration
-    STAR_WIN_DEF_GEOM = WinGeometry(545, 105, 420, 100)     # Star List Window configuration
+    MASTER_WIN_DEF_GEOM = WinGeometry(270, 55, 100, 525)    # Master List Window configuration
+    STAR_WIN_DEF_GEOM = WinGeometry(550, 160, 420, 100)     # Star List Window configuration
     SPEC_WIN_DEF_GEOM = WinGeometry(245, 260, 420, 250)     # Spectrographs Setting Window configuration
     STARL_EN_HG = 45                                        # (Star) List Entry
 else:
     # Windows or other
     MAIN_WIN_DEF_GEOM = WinGeometry(300, 370, 100, 100)
-    MASTER_WIN_DEF_GEOM = WinGeometry(160, 60, 420, 370)
-    STAR_WIN_DEF_GEOM = WinGeometry(390, 85, 420, 100)
+    MASTER_WIN_DEF_GEOM = WinGeometry(160, 60, 100, 525)
+    STAR_WIN_DEF_GEOM = WinGeometry(395, 125, 420, 100)
     SPEC_WIN_DEF_GEOM = WinGeometry(175, 170, 420, 250)
     STARL_EN_HG = 30
 MASTERL_EN_HG = STARL_EN_HG                                 # (Master) List Entry

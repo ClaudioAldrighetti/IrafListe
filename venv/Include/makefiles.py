@@ -176,8 +176,8 @@ def make_ListaFlattati(ws_path, star_list, list_dim):
             for i_pose in range(1, star_info.poses + 1):
                 new_file.write(
                     "imarith " + star_info.name + "-" + str(i_pose) + "_bd.fit / "
-                    "master_flat_" + star_info.name + ".fit " +
-                    star_info.name + "-" + str(i_pose) + "_f.fit calctyp=real pixtype=real\n")
+                    "master_flat_" + star_info.name + ".fit " + star_info.name + "-" + str(i_pose) + "_f.fit "
+                    "calctyp=real pixtype=real\n")
 
             for i_neon in range(1, star_info.neon + 1):
                 new_file.write(
@@ -318,8 +318,8 @@ def make_ListaCalibraLambda(ws_path, star_list, list_dim):
 
             for i_pose in range(1, star_info.poses + 1):
                 new_file.write(
-                    "dispcor " + star_info.name + "-" + str(i_pose) + "_f.ms.fits " +
-                    star_info.name + "-" + str(i_pose) + "_fw.fits linearize=no\n")
+                    "dispcor " + star_info.name + "-" + str(i_pose) + "_f.ms.fits "
+                    + star_info.name + "-" + str(i_pose) + "_fw.fits linearize=no\n")
 
     new_file.close()
     return
@@ -408,16 +408,16 @@ def make_HelioRename(ws_path, star_list, list_dim, std_check_flag):
 
             for i_pose in range(1, star_info.poses + 1):
                 new_file.write(
-                    "cp " + star_info.name + "-" + str(i_pose) + img_ext_str + " " +
-                    star_info.name + "-" + str(i_pose) + "_hv.fits\n")
+                    "cp " + star_info.name + "-" + str(i_pose) + img_ext_str + " "
+                    + star_info.name + "-" + str(i_pose) + "_hv.fits\n")
 
             if not std_check_flag:
                 continue
 
             for i_pose in range(1, star_info.std_pose + 1):
                 new_file.write(
-                    "cp " + star_info.standard + "-" + str(i_pose) + img_ext_str + " " +
-                    star_info.standard + "-" + str(i_pose) + "_hv.fits\n")
+                    "cp " + star_info.standard + "-" + str(i_pose) + img_ext_str + " "
+                    + star_info.standard + "-" + str(i_pose) + "_hv.fits\n")
 
         new_file.close()
     return

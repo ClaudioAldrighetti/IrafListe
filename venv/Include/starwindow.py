@@ -31,17 +31,33 @@ class StarListWindow(tk.Toplevel):
         self.darkLabel = mtk.make_Label(self.listFrame, text="Dark T", column=5, pady=2, sticky=tk.EW)
         self.standardLabel = mtk.make_Label(self.listFrame, text="Standard", column=6, pady=2, sticky=tk.EW)
 
+        self.selected = -1
         self.starEntries = []
         self.posesEntries = []
         self.flatEntries = []
         self.neonEntries = []
         self.darkEntries = []
         self.standardEntries = []
-        self.removeButtons = []
+
+        self.removeButton = mtk.make_Button(self.listFrame, text="-", row=1, pady=1, command=self.remove_selected)
+
+        self.selected_label = tk.StringVar(self, '')
+        self.starEntry = tk.Menubutton(self.listFrame, width=15, bg=EN_BG, fg=EN_FG, relief=BT_REL,
+                                       textvariable=self.selected_label)
+        self.starEntry.grid(row=1, column=1, padx=1, pady=7, ipadx=0, ipady=0, sticky=tk.EW)
+        self.starEntry.menu = tk.Menu(self.starEntry, tearoff=0)
+        self.starEntry["menu"] = self.starEntry.menu
+
+        # REF Data
+        self.poseEntry = mtk.make_Entry(self.listFrame, row=1, column=2, width=6, sticky=tk.EW)
+        self.flatEntry = mtk.make_Entry(self.listFrame, text=5, row=1, column=3, width=6, sticky=tk.EW)
+        self.neonEntry = mtk.make_Entry(self.listFrame, text=3, row=1, column=4, width=6, sticky=tk.EW)
+        self.darkEntry = mtk.make_Entry(self.listFrame, row=1, column=5, width=6, sticky=tk.EW)
+        self.standardEntry = mtk.make_Entry(self.listFrame, row=1, column=6, width=15, sticky=tk.EW)
 
         # Ref frame
         self.refFrame = tk.Frame(self, bg=FR_BG)
-        self.refFrame.grid()
+        self.refFrame.grid(row=2)
 
         self.refLabel = mtk.make_Label(self.refFrame, text="REF: ", padx=2, state=tk.DISABLED)
         self.refEntry = mtk.make_Entry(self.refFrame, column=1, padx=2, sticky=tk.EW, state=tk.DISABLED)
@@ -49,7 +65,70 @@ class StarListWindow(tk.Toplevel):
         self.refPoseEntry = mtk.make_Entry(self.refFrame, width=5, column=3, padx=2, sticky=tk.EW, state=tk.DISABLED)
 
         # Start button
-        self.startButton = mtk.make_Button(self, self.start_session, text="Start Session", row=2, pady=2)
+        self.startButton = mtk.make_Button(self, self.start_session, text="Start Session", row=3, columnspan=2, pady=2)
+
+        # List Info Window
+        self.infoWindow = ListInfoWindow(self)
+
+        return
+
+    def select(self, index, store=True):
+        print('SELECT INDEX: ', index)
+
+        if store:
+            self.store_selected_data()
+
+        mtk.clear_Entry(self.poseEntry)
+        self.poseEntry.insert(0, self.posesEntries[index])
+        mtk.clear_Entry(self.flatEntry)
+        self.flatEntry.insert(0, self.flatEntries[index])
+        mtk.clear_Entry(self.neonEntry)
+        self.neonEntry.insert(0, self.neonEntries[index])
+        mtk.clear_Entry(self.darkEntry)
+        self.darkEntry.insert(0, self.darkEntries[index])
+        star_name = self.starEntries[index]
+        if is_standard(star_name):
+            mtk.clear_Entry(self.standardEntry, tk.DISABLED)
+        else:
+            mtk.clear_Entry(self.standardEntry, tk.NORMAL)
+            self.standardEntry.insert(0, self.standardEntries[index])
+
+        self.selected_label.set(star_name)
+        self.selected = index
+        return
+
+    def select_name(self, name):
+        print('SELECT NAME: ', name)
+        self.select(self.starEntries.index(name))
+
+        return
+
+    def store_selected_data(self):
+        print('STORE SELECTED')
+        index = self.selected
+        self.posesEntries[index] = self.poseEntry.get()
+        self.flatEntries[index] = self.flatEntry.get()
+        self.neonEntries[index] = self.neonEntry.get()
+        self.darkEntries[index] = self.darkEntry.get()
+        star_name = self.starEntries[index]
+        if not is_standard(star_name):
+            self.standardEntries[index] = self.standardEntry.get()
+
+        # Refresh info data
+        self.infoWindow.refresh()
+
+        return
+
+    def remove_selected(self):
+        print('REMOVE SELECTED: ', self.starEntries[self.selected])
+        self.starEntry.menu.delete(self.starEntries[self.selected])
+        self.master.remove_star(self.selected)
+
+        if self.master.starListDim > 0:
+            self.selected_label.set(self.starEntries[0])
+            self.selected = 0
+        else:
+            self.close()
 
         return
 
@@ -88,18 +167,18 @@ class StarListWindow(tk.Toplevel):
         # Check and retrieve stars information
         print("Checking star list information...")
         for i in range(0, list_dim):
-            star_entry = self.starEntries[i].get()
-            poses_entry_str = rm_spaces(self.posesEntries[i].get())
-            flat_entry_str = rm_spaces(self.flatEntries[i].get())
-            neon_entry_str = rm_spaces(self.neonEntries[i].get())
-            dark_entry_str = rm_spaces(self.darkEntries[i].get())
-            standard_entry = rm_spaces(self.standardEntries[i].get())
+            star_entry = self.starEntries[i]
+            poses_entry_str = self.posesEntries[i]
+            flat_entry_str = self.flatEntries[i]
+            neon_entry_str = self.neonEntries[i]
+            dark_entry_str = self.darkEntries[i]
+            standard_entry = rm_spaces(self.standardEntries[i])
             std_poses = None
             std_flag = False
 
             if not str_is_positive_int(poses_entry_str):
                 print("Error: illegal poses value for star: " + star_entry + "!")
-                mtk.entry_err_blink(self.posesEntries[i])
+                # mtk.entry_err_blink(self.posesEntries[i])
                 star_poses = None
                 err_flag = True
             else:
@@ -107,7 +186,7 @@ class StarListWindow(tk.Toplevel):
 
             if not str_is_positive_int(flat_entry_str):
                 print("Error: illegal flat value for star: " + star_entry + "!")
-                mtk.entry_err_blink(self.flatEntries[i])
+                # mtk.entry_err_blink(self.flatEntries[i])
                 star_flat = None
                 err_flag = True
             else:
@@ -115,7 +194,7 @@ class StarListWindow(tk.Toplevel):
 
             if not str_is_positive_int(neon_entry_str):
                 print("Error: illegal neon value for star: " + star_entry + "!")
-                mtk.entry_err_blink(self.neonEntries[i])
+                # mtk.entry_err_blink(self.neonEntries[i])
                 star_neon = None
                 err_flag = True
             else:
@@ -123,7 +202,7 @@ class StarListWindow(tk.Toplevel):
 
             if not str_is_positive_int(dark_entry_str):
                 print("Error: illegal dark time value for star: " + star_entry + "!")
-                mtk.entry_err_blink(self.darkEntries[i])
+                # mtk.entry_err_blink(self.darkEntries[i])
                 star_dark = None
                 err_flag = True
             else:
@@ -132,18 +211,18 @@ class StarListWindow(tk.Toplevel):
             if std_check_flag and not is_standard(star_entry):
                 if not standard_entry or not is_standard(standard_entry):
                     print("Error: invalid standard for star: " + star_entry + "!")
-                    mtk.entry_err_blink(self.standardEntries[i])
+                    # mtk.entry_err_blink(self.standardEntries[i])
                     standard_entry = None
                     err_flag = True
                 else:
                     for j in range(0, list_dim):
-                        if standard_entry != self.starEntries[j].get():
+                        if standard_entry != self.starEntries[j]:
                             continue
 
-                        std_poses_entry = rm_spaces(self.posesEntries[j].get())
+                        std_poses_entry = rm_spaces(self.posesEntries[j])
                         if not str_is_positive_int(std_poses_entry):
                             print("Error: illegal poses value for standard: " + standard_entry + "!")
-                            mtk.entry_err_blink(self.posesEntries[j])
+                            # mtk.entry_err_blink(self.posesEntries[j])
                             err_flag = True
                         else:
                             std_poses = int(std_poses_entry)
@@ -156,7 +235,7 @@ class StarListWindow(tk.Toplevel):
 
             if not std_flag:
                 print("Error: standard not found for star: " + star_entry + "!")
-                mtk.entry_err_blink(self.standardEntries[i])
+                # mtk.entry_err_blink(self.standardEntries[i])
                 standard_entry = None
                 err_flag = True
 
@@ -258,4 +337,50 @@ class StarListWindow(tk.Toplevel):
         print("Closing star list window...")
         self.master.starListWindow = None
         self.destroy()
+        return
+
+
+# Star List Info Window class
+class ListInfoWindow(tk.Toplevel):
+    def __init__(self, master=None):
+        super().__init__(master=master)
+        self.title("List Info")
+        self.geometryBase = WinGeometry(650, 150, 420, 300)
+        self.geometry(str(self.geometryBase))
+        self.minsize(500, 150)
+        self.configure(bg=FR_BG)
+
+        self.listFrame = tk.Frame(self, bg=FR_BG)
+        self.listFrame.pack(expand=True, fill=tk.BOTH)
+        self.listText = tk.Text(self.listFrame, state=tk.NORMAL, bg=EN_BG, fg=GEN_FG, relief=tk.FLAT)
+        self.listText.pack(expand=True, fill=tk.BOTH)
+        self.refresh()
+
+        return
+
+    # Star List Info
+    def refresh(self):
+        self.listText.configure(state=tk.NORMAL)
+        self.listText.delete("1.0", tk.END)
+
+        std_check_flag = self.master.master.standardVar.get()
+
+        list_string = ""
+        for i in range(0, self.master.master.starListDim):
+            star_name = self.master.starEntries[i]
+
+            if std_check_flag and not is_standard(star_name):
+                std_str = self.master.standardEntries[i] + "\n"
+            else:
+                std_str = "None\n"
+
+            list_string += ("Star: " + star_name + "\t| " +
+                            "Poses: " + str(self.master.posesEntries[i]) + "\t| " +
+                            "Flat: " + str(self.master.flatEntries[i]) + "\t| " +
+                            "Neon: " + str(self.master.neonEntries[i]) + "\t| " +
+                            "Dark-T: " + str(self.master.darkEntries[i]) + "\t| " +
+                            "Standard: " + std_str)
+
+        self.listText.insert("end", list_string)
+        self.listText.configure(state=tk.DISABLED)
         return

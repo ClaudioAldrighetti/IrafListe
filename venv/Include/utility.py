@@ -17,7 +17,9 @@ def is_standard(this_name):
 
 
 def str_is_positive_int(this_string):
-    if (not this_string) or (not this_string.isdigit()) or (int(this_string) == 0):
+    if isinstance(this_string, int):
+        return this_string > 0
+    elif (not this_string) or (not this_string.isdigit()) or (int(this_string) == 0):
         return False
     return True
 
