@@ -136,6 +136,9 @@ class StarListWindow(tk.Toplevel):
     def start_session(self):
         print("START SESSION")
 
+        # Store selected star to update its data if it has been changed
+        self.store_selected_data()
+
         err_flag = False
         std_check_flag = self.master.standardVar.get()
         master_flag = self.master.masterFlag
