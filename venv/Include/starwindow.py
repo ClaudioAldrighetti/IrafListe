@@ -288,7 +288,7 @@ class StarListWindow(tk.Toplevel):
         mf.make_Mediana(ws_path, star_list, list_dim)
         mf.make_Pulizia3(ws_path, star_list, list_dim, std_check_flag)
         # mf.make_Pulizia4(ws_path)
-        mf.make_ListaInizio(ws_path, master_flag)
+        mf.make_ListaInizio(ws_path, star_list, list_dim, spec_info, master_flag)
 
         print("Session files have been created successfully")
 

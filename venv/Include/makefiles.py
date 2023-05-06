@@ -458,13 +458,13 @@ def make_PreparoHelio(ws_path, star_list, list_dim):
         file_path = opt.join(ws_path, file_name)
         with open(file_path, "w") as new_file:
             new_file.write(
-                "hedit @" + star_info.name + "_rv_corrected.txt "
-                "field=observat value=OMB add+ update+\n"
+                "reset obsdb= home$obsdb.dat\n"
                 "setjd @" + star_info.name + "_rv_corrected.txt\n"
                 "setairmass @" + star_info.name + "_rv_corrected.txt\n"
-                "hedit @" + star_info.name + "_rv_corrected.txt\n"
-                "fields=DATE-OBS value=. > lista_date.txt\n"
-                "!more lista_date.txt\n")
+                "hedit @" + star_info.name + "_rv_corrected.txt fields=DATE-OBS value=. > lista_date.txt\n"
+                "hedit @" + star_info.name + "_rv_corrected.txt fields=EPOCH value=2000 add+ update+ ver-\n"
+                "!more lista_date.txt\n"
+            )
 
         new_file.close()
     return
@@ -535,23 +535,138 @@ def make_Pulizia3(ws_path, star_list, list_dim, std_check_flag):
     return
 
 
-def make_ListaInizio(ws_path, dark_flag):
+def make_ListaInizio(ws_path, star_list, list_dim, spec_info, dark_flag):
     print("Creating lista_inizio.txt file...")
     file_path = opt.join(ws_path, "lista_inizio.txt")
     with open(file_path, "w") as new_file:
-        new_file.write(
-            "cl < pulizia0.txt\n")
+
         if dark_flag:
+            new_file.write("cl < crea_master_db.txt\n")
+
+        # Rename stars and masters files to nc_<file_name>
+        dark_times = []
+        for i in range(0, list_dim):
+            star_info = star_list[i]
+
+            for i_pose in range(1, star_info.poses + 1):
+                file_name = star_info.name + "-" + str(i_pose) + ".fit"
+                new_file.write("mv " + file_name + " nc_" + file_name + "\n")
+
+            for i_flat in range(1, star_info.flat + 1):
+                file_name = "FLAT_" + star_info.name + "-" + str(i_flat) + ".fit"
+                new_file.write("mv " + file_name + " nc_" + file_name + "\n")
+
+            for i_neon in range(1, star_info.neon + 1):
+                file_name = "NEON_" + star_info.name + "-" + str(i_neon) + ".fit"
+                new_file.write("mv " + file_name + " nc_" + file_name + "\n")
+
+            if dark_flag:
+                if star_info.dark_time not in dark_times:
+                    dark_times.append(star_info.dark_time)
+
+        if dark_flag:
+
+            for dark_time in dark_times:
+                file_name = "master_dark_" + str(dark_time) + ".fit"
+                new_file.write("mv " + file_name + " nc_" + file_name + "\n")
+
+            file_name = "master_bias.fit"
+            new_file.write("mv " + file_name + " nc_" + file_name + "\n")
+
+        # Execute imcopy (crop image) on every nc_ file
+        for i in range(0, list_dim):
+            star_info = star_list[i]
+
+            for i_pose in range(1, star_info.poses + 1):
+                file_name = star_info.name + "-" + str(i_pose) + ".fit"
+                new_file.write(
+                    "imcopy nc_" + file_name + " [" +
+                    str(spec_info.xi_pix) + ":" + str(spec_info.xf_pix) + "," +
+                    str(spec_info.yi_pix) + ":" + str(spec_info.yf_pix) +
+                    "] " + file_name + "\n"
+                )
+
+            for i_flat in range(1, star_info.flat + 1):
+                file_name = "FLAT_" + star_info.name + "-" + str(i_flat) + ".fit"
+                new_file.write(
+                    "imcopy nc_" + file_name + " [" +
+                    str(spec_info.xi_pix) + ":" + str(spec_info.xf_pix) + "," +
+                    str(spec_info.yi_pix) + ":" + str(spec_info.yf_pix) +
+                    "] " + file_name + "\n"
+                )
+
+            for i_neon in range(1, star_info.neon + 1):
+                file_name = "NEON_" + star_info.name + "-" + str(i_neon) + ".fit"
+                new_file.write(
+                    "imcopy nc_" + file_name + " [" +
+                    str(spec_info.xi_pix) + ":" + str(spec_info.xf_pix) + "," +
+                    str(spec_info.yi_pix) + ":" + str(spec_info.yf_pix) +
+                    "] " + file_name + "\n"
+                )
+
+        if dark_flag:
+
+            for dark_time in dark_times:
+                file_name = "master_dark_" + str(dark_time) + ".fit"
+                new_file.write(
+                    "imcopy nc_" + file_name + " [" +
+                    str(spec_info.xi_pix) + ":" + str(spec_info.xf_pix) + "," +
+                    str(spec_info.yi_pix) + ":" + str(spec_info.yf_pix) +
+                    "] " + file_name + "\n"
+                )
+
+            file_name = "master_bias.fit"
             new_file.write(
-                "cl < crea_master_db.txt\n")
+                "imcopy nc_" + file_name + " [" +
+                str(spec_info.xi_pix) + ":" + str(spec_info.xf_pix) + "," +
+                str(spec_info.yi_pix) + ":" + str(spec_info.yf_pix) +
+                "] " + file_name + "\n"
+            )
+
+        # Remove nc_ files
+        new_file.write("!rm -f nc_*.fit\n")
+
+        for i in range(0, list_dim):
+            star_info = star_list[i]
+
+            for i_pose in range(1, star_info.poses + 1):
+                file_name = star_info.name + "-" + str(i_pose) + ".fit"
+                new_file.write(
+                    "hedit " + file_name + " field=observat value=OMB add+ update+ ver-\n"
+                    "hedit " + file_name + " field=observatory value=OMB add+ update+ ver-\n"
+                    "hedit " + file_name + " field=dispaxis 1 add+ ver-\n"
+                    "hedit " + file_name + " field=DC-FLAG 0 add+ ver-\n"
+                )
+
+            for i_flat in range(1, star_info.flat + 1):
+                file_name = "FLAT_" + star_info.name + "-" + str(i_flat) + ".fit"
+                new_file.write(
+                    "hedit " + file_name + " field=observat value=OMB add+ update+ ver-\n"
+                    "hedit " + file_name + " field=observatory value=OMB add+ update+ ver-\n"
+                    "hedit " + file_name + " field=dispaxis 1 add+ ver-\n"
+                    "hedit " + file_name + " field=DC-FLAG 0 add+ ver-\n"
+                )
+
+            for i_neon in range(1, star_info.neon + 1):
+                file_name = "NEON_" + star_info.name + "-" + str(i_neon) + ".fit"
+                new_file.write(
+                    "hedit " + file_name + " field=observat value=OMB add+ update+ ver-\n"
+                    "hedit " + file_name + " field=observatory value=OMB add+ update+ ver-\n"
+                    "hedit " + file_name + " field=dispaxis 1 add+ ver-\n"
+                    "hedit " + file_name + " field=DC-FLAG 0 add+ ver-\n"
+                )
+
         new_file.write(
+            "cl < pulizia0.txt\n"
             "imarith @lista_generale.txt - master_bias.fit @lista_biassati.txt calctyp=real pixtype=real\n"
             "cl < crea_darkati.txt\n"
             "cl < pulizia1.txt\n"
             "cl < genera_master_flat.txt\n"
             "cl < lista_flattati.txt\n"
             "cl < pulizia2.txt\n"
-            "cl < genera_master_neon.txt\n")
+            "cl < genera_master_neon.txt\n"
+        )
+
     new_file.close()
     return
 

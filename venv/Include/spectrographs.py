@@ -23,6 +23,7 @@ def retrieve_spectrographs():
     for record in spec_reader:
         spec_list.append(SpecInfo(
             record[0], int(record[1]), int(record[2]), int(record[3]), int(record[4]),
+            int(record[5]), int(record[6]), int(record[7]), int(record[8])
         ))
     spec_file.close()
     return spec_list

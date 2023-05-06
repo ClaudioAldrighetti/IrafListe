@@ -44,12 +44,16 @@ class WinGeometry:
 
 
 class SpecInfo:
-    def __init__(self, name, min_h_pixel, max_h_pixel, h_image, l_row):
+    def __init__(self, name, min_h_pixel, max_h_pixel, h_image, l_row, xi_pix, xf_pix, yi_pix, yf_pix):
         self.name = name
         self.min_h_pixel = min_h_pixel
         self.max_h_pixel = max_h_pixel
         self.h_image = h_image
         self.l_row = l_row
+        self.xi_pix = xi_pix
+        self.xf_pix = xf_pix
+        self.yi_pix = yi_pix
+        self.yf_pix = yf_pix
 
     def to_csv(self):
         return (self.name + "," +
