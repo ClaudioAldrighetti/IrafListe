@@ -12,7 +12,7 @@ def make_Pulizia0(ws_path):
     file_path = opt.join(ws_path, "pulizia0.txt")
     with open(file_path, "w") as new_file:
         new_file.write(
-            "mkdir 00_originali\n"
+            "!mkdir 00_originali\n"
             "cp *.fit 00_originali\n"
             "cd 00_originali\n"
             "!gzip *\n"
@@ -118,19 +118,19 @@ def make_Pulizia1(ws_path):
     file_path = opt.join(ws_path, "pulizia1.txt")
     with open(file_path, "w") as new_file:
         new_file.write(
-            "mkdir 01_biassati\n"
+            "!mkdir 01_biassati\n"
             "cd 01_biassati\n"
             "mv ../*_b.fit .\n"
             "!gzip *\n"
             "cd ..\n"
-            "mkdir 02_darkati\n"
+            "!mkdir 02_darkati\n"
             "mv *_bd.fit 02_darkati\n"
             "!rm -f *.fit\n"
             "cd 02_darkati\n"
             "cp * ../\n"
             "!gzip *\n"
             "cd ..\n"
-            "mkdir 03_flat\n"
+            "!mkdir 03_flat\n"
             "mv FLAT_* 03_flat\n")
     new_file.close()
     return
@@ -209,10 +209,10 @@ def make_Pulizia2(ws_path):
     file_path = opt.join(ws_path, "pulizia2.txt")
     with open(file_path, "w") as new_file:
         new_file.write(
-            "mkdir 04_flattati\n"
+            "!mkdir 04_flattati\n"
             "cp *_f.fit 04_flattati\n"
             "!rm -f *_bd.fit\n"
-            "mkdir 05_neon\n"
+            "!mkdir 05_neon\n"
             "mv NEON_* 05_neon\n")
     new_file.close()
     return
@@ -499,7 +499,7 @@ def make_Pulizia3(ws_path, star_list, list_dim, std_check_flag):
                 continue
 
             new_file.write(
-                "mkdir " + star_info.name + "\n"
+                "!mkdir " + star_info.name + "\n"
                 "mv " + star_info.name + "-* " + star_info.name + "\n")
 
             if std_check_flag:
@@ -520,7 +520,7 @@ def make_Pulizia3(ws_path, star_list, list_dim, std_check_flag):
 
         if std_check_flag:
             new_file.write(
-                "mkdir 06_standard\n"
+                "!mkdir 06_standard\n"
                 "mv *.fits 06_standard\n"
                 "mv *.fit 06_standard\n"
                 "cd 06_standard\n"
@@ -528,7 +528,7 @@ def make_Pulizia3(ws_path, star_list, list_dim, std_check_flag):
                 "cd ..\n")
 
         new_file.write(
-            "mkdir 07_liste\n"
+            "!mkdir 07_liste\n"
             "mv *.txt 07_liste\n")
 
     new_file.close()
@@ -580,7 +580,7 @@ def make_ListaInizio(ws_path, star_list, list_dim, spec_info, dark_flag):
             for i_pose in range(1, star_info.poses + 1):
                 file_name = star_info.name + "-" + str(i_pose) + ".fit"
                 new_file.write(
-                    "imcopy nc_" + file_name + " [" +
+                    "imcopy nc_" + file_name + "[" +
                     str(spec_info.xi_pix) + ":" + str(spec_info.xf_pix) + "," +
                     str(spec_info.yi_pix) + ":" + str(spec_info.yf_pix) +
                     "] " + file_name + "\n"
@@ -589,7 +589,7 @@ def make_ListaInizio(ws_path, star_list, list_dim, spec_info, dark_flag):
             for i_flat in range(1, star_info.flat + 1):
                 file_name = "FLAT_" + star_info.name + "-" + str(i_flat) + ".fit"
                 new_file.write(
-                    "imcopy nc_" + file_name + " [" +
+                    "imcopy nc_" + file_name + "[" +
                     str(spec_info.xi_pix) + ":" + str(spec_info.xf_pix) + "," +
                     str(spec_info.yi_pix) + ":" + str(spec_info.yf_pix) +
                     "] " + file_name + "\n"
@@ -598,7 +598,7 @@ def make_ListaInizio(ws_path, star_list, list_dim, spec_info, dark_flag):
             for i_neon in range(1, star_info.neon + 1):
                 file_name = "NEON_" + star_info.name + "-" + str(i_neon) + ".fit"
                 new_file.write(
-                    "imcopy nc_" + file_name + " [" +
+                    "imcopy nc_" + file_name + "[" +
                     str(spec_info.xi_pix) + ":" + str(spec_info.xf_pix) + "," +
                     str(spec_info.yi_pix) + ":" + str(spec_info.yf_pix) +
                     "] " + file_name + "\n"
@@ -609,7 +609,7 @@ def make_ListaInizio(ws_path, star_list, list_dim, spec_info, dark_flag):
             for dark_time in dark_times:
                 file_name = "master_dark_" + str(dark_time) + ".fit"
                 new_file.write(
-                    "imcopy nc_" + file_name + " [" +
+                    "imcopy nc_" + file_name + "[" +
                     str(spec_info.xi_pix) + ":" + str(spec_info.xf_pix) + "," +
                     str(spec_info.yi_pix) + ":" + str(spec_info.yf_pix) +
                     "] " + file_name + "\n"
@@ -617,7 +617,7 @@ def make_ListaInizio(ws_path, star_list, list_dim, spec_info, dark_flag):
 
             file_name = "master_bias.fit"
             new_file.write(
-                "imcopy nc_" + file_name + " [" +
+                "imcopy nc_" + file_name + "[" +
                 str(spec_info.xi_pix) + ":" + str(spec_info.xf_pix) + "," +
                 str(spec_info.yi_pix) + ":" + str(spec_info.yf_pix) +
                 "] " + file_name + "\n"
@@ -634,8 +634,8 @@ def make_ListaInizio(ws_path, star_list, list_dim, spec_info, dark_flag):
                 new_file.write(
                     "hedit " + file_name + " field=observat value=OMB add+ update+ ver-\n"
                     "hedit " + file_name + " field=observatory value=OMB add+ update+ ver-\n"
-                    "hedit " + file_name + " field=dispaxis 1 add+ ver-\n"
-                    "hedit " + file_name + " field=DC-FLAG 0 add+ ver-\n"
+                    "hedit " + file_name + " dispaxis 1 add+ ver-\n"
+                    "hedit " + file_name + " DC-FLAG 0 add+ ver-\n"
                 )
 
             for i_flat in range(1, star_info.flat + 1):
@@ -643,8 +643,8 @@ def make_ListaInizio(ws_path, star_list, list_dim, spec_info, dark_flag):
                 new_file.write(
                     "hedit " + file_name + " field=observat value=OMB add+ update+ ver-\n"
                     "hedit " + file_name + " field=observatory value=OMB add+ update+ ver-\n"
-                    "hedit " + file_name + " field=dispaxis 1 add+ ver-\n"
-                    "hedit " + file_name + " field=DC-FLAG 0 add+ ver-\n"
+                    "hedit " + file_name + " dispaxis 1 add+ ver-\n"
+                    "hedit " + file_name + " DC-FLAG 0 add+ ver-\n"
                 )
 
             for i_neon in range(1, star_info.neon + 1):
@@ -652,8 +652,8 @@ def make_ListaInizio(ws_path, star_list, list_dim, spec_info, dark_flag):
                 new_file.write(
                     "hedit " + file_name + " field=observat value=OMB add+ update+ ver-\n"
                     "hedit " + file_name + " field=observatory value=OMB add+ update+ ver-\n"
-                    "hedit " + file_name + " field=dispaxis 1 add+ ver-\n"
-                    "hedit " + file_name + " field=DC-FLAG 0 add+ ver-\n"
+                    "hedit " + file_name + " dispaxis 1 add+ ver-\n"
+                    "hedit " + file_name + " DC-FLAG 0 add+ ver-\n"
                 )
 
         new_file.write(
@@ -711,7 +711,7 @@ def make_CreaMasterDb(ws_path, master_list, list_dim):
     file_path = opt.join(ws_path, "crea_master_db.txt")
     with open(file_path, "w") as new_file:
         new_file.write(
-            "mkdir bias\n"
+            "!mkdir bias\n"
             "mv BIAS-* bias\n"
             "cp lista_bias.txt bias\n"
             "cd bias\n"
@@ -720,7 +720,7 @@ def make_CreaMasterDb(ws_path, master_list, list_dim):
             "cp master_bias.fit ../\n"
             "!gzip *\n"
             "cd ..\n"
-            "mkdir dark\n"
+            "!mkdir dark\n"
             "mv DARK* dark\n"
             "cp lista_dark* dark\n"
             "cd dark\n"
